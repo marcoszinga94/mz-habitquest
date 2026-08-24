@@ -17,21 +17,21 @@ import {
 } from '../src/lib/game';
 
 describe('niveles y XP', () => {
-  it('nivel 1 requiere 0 XP y alcanzar nivel 2 requiere 100', () => {
+  it('nivel 1 requiere 0 XP y alcanzar nivel 2 requiere 50', () => {
     expect(xpForLevel(1)).toBe(0);
-    expect(xpForLevel(2)).toBe(100);
+    expect(xpForLevel(2)).toBe(50);
   });
 
   it('levelFromXp devuelve el nivel correcto', () => {
     expect(levelFromXp(0)).toBe(1);
-    expect(levelFromXp(99)).toBe(1);
-    expect(levelFromXp(100)).toBe(2);
-    expect(levelFromXp(249)).toBe(2);
-    expect(levelFromXp(250)).toBe(3); // 100 + 150 = 250 llega a nivel 3
+    expect(levelFromXp(49)).toBe(1);
+    expect(levelFromXp(50)).toBe(2);
+    expect(levelFromXp(149)).toBe(2);
+    expect(levelFromXp(150)).toBe(3); // 50 + 100 = 150 llega a nivel 3
   });
 
   it('levelProgress expone la barra entre 0 y 1', () => {
-    const p = levelProgress(50);
+    const p = levelProgress(30);
     expect(p.level).toBe(1);
     expect(p.progress).toBeGreaterThan(0);
     expect(p.progress).toBeLessThan(1);

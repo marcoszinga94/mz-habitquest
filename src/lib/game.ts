@@ -12,7 +12,7 @@ export function xpForCheckin(streak: number): number {
 export function xpForLevel(level: number): number {
   let total = 0;
   for (let i = 1; i < level; i++) {
-    total += 100 + (i - 1) * 50;
+    total += 50 + (i - 1) * 50;
   }
   return total;
 }
