@@ -53,6 +53,34 @@ export function addDays(dateKey: string, delta: number): string {
   return toDateKey(dt);
 }
 
+export const ALL_DAYS = '0,1,2,3,4,5,6';
+
+/** Convierte "0,1,3" en un Set de días (0=domingo..6=sábado). Vacío => todos los días. */
+export function parseScheduleDays(value: string | null | undefined): Set<number> {
+  if (!value) return new Set([0, 1, 2, 3, 4, 5, 6]);
+  const days = value
+    .split(',')
+    .map((n) => Number(n))
+    .filter((n) => Number.isInteger(n) && n >= 0 && n <= 6);
+  return days.length > 0 ? new Set(days) : new Set([0, 1, 2, 3, 4, 5, 6]);
+}
+
+/** True si la fecha cae en un día agendado del hábito. */
+export function isScheduledOn(scheduleDays: string | null | undefined, date: Date): boolean {
+  return parseScheduleDays(scheduleDays).has(date.getDay());
+}
+
+/** Frecuencia derivada de la agenda: todos los días => daily, si no weekly. */
+export function scheduleToFrequency(days: Set<number>): {
+  frequency: 'daily' | 'weekly';
+  targetPerWeek: number;
+} {
+  const size = days.size;
+  return size >= 7
+    ? { frequency: 'daily', targetPerWeek: 7 }
+    : { frequency: 'weekly', targetPerWeek: size };
+}
+
 /**
  * Racha de días consecutivos con check-in hasta `today`.
  * Si hoy no tiene check-in aún, cuenta desde ayer (racha vigente).

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Flame, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Bell, Flame, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { api, type DashboardData, type HabitData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
+import { parseScheduleDays } from '../../../lib/game';
 
 export function HabitsView({
   data,
@@ -19,6 +20,15 @@ export function HabitsView({
   const remove = async (habit: HabitData) => {
     await api(`/api/habits/${habit.id}`, { method: 'DELETE' });
     onSaved();
+  };
+
+  const scheduleLabel = (h: HabitData) => {
+    const days = parseScheduleDays(h.scheduleDays);
+    if (days.size >= 7) return t('habits.daily');
+    return [0, 1, 2, 3, 4, 5, 6]
+      .filter((d) => days.has(d))
+      .map((d) => t(`days.${d}`))
+      .join(' · ');
   };
 
   return (
@@ -41,7 +51,8 @@ export function HabitsView({
                 <div className="flex-1">
                   <div className="font-bold">{h.name}</div>
                   <div className="text-[11px] text-slate-400">
-                    {h.frequency === 'daily' ? t('habits.daily') : t('habits.weekly')}
+                    {scheduleLabel(h)}
+                    {h.reminderEnabled && <span className="ml-1 inline-flex items-center gap-0.5"><Bell size={10} /> {h.reminderTime}</span>}
                   </div>
                 </div>
                 <button className="btn btn-ghost p-1.5" onClick={() => { setEditing(h); setFormOpen(true); }} aria-label={t('form.edit')}>
@@ -87,14 +98,25 @@ function HabitFormModal({
   const { t } = useI18n();
   const [name, setName] = useState(editing?.name ?? '');
   const [emoji, setEmoji] = useState(editing?.emoji ?? '⭐');
-  const [frequency, setFrequency] = useState<'daily' | 'weekly'>(editing?.frequency ?? 'daily');
-  const [target, setTarget] = useState(editing?.targetPerWeek ?? 7);
+  const [days, setDays] = useState<Set<number>>(() =>
+    parseScheduleDays(editing?.scheduleDays),
+  );
   const [reminder, setReminder] = useState(editing?.reminderEnabled ?? false);
   const [reminderTime, setReminderTime] = useState(editing?.reminderTime ?? '09:00');
   const [error, setError] = useState('');
 
+  const toggleDay = (d: number) => {
+    setDays((prev) => {
+      const next = new Set(prev);
+      if (next.has(d)) next.delete(d);
+      else next.add(d);
+      return next.size > 0 ? next : prev;
+    });
+  };
+
   const submit = async () => {
-    const body = { name, emoji, frequency, targetPerWeek: target, reminderEnabled: reminder, reminderTime };
+    const scheduleDays = [...days].sort((a, b) => a - b).join(',');
+    const body = { name, emoji, scheduleDays, reminderEnabled: reminder, reminderTime };
     try {
       if (editing) {
         await api(`/api/habits/${editing.id}`, { method: 'PATCH', body: JSON.stringify(body) });
@@ -118,20 +140,21 @@ function HabitFormModal({
           <span>{t('form.emoji')}</span>
           <input className="input w-24 text-center text-lg" value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={4} />
         </label>
-        <div className="flex gap-2">
-          <button className={`btn flex-1 py-2 text-sm ${frequency === 'daily' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setFrequency('daily')}>
-            {t('form.frequency.daily')}
-          </button>
-          <button className={`btn flex-1 py-2 text-sm ${frequency === 'weekly' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setFrequency('weekly')}>
-            {t('form.frequency.weekly')}
-          </button>
+        <div className="flex flex-col gap-1 text-sm">
+          <span>{t('form.schedule')}</span>
+          <div className="flex gap-1">
+            {[0, 1, 2, 3, 4, 5, 6].map((d) => (
+              <button
+                key={d}
+                type="button"
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold ${days.has(d) ? 'btn-primary' : 'btn-ghost opacity-60'}`}
+                onClick={() => toggleDay(d)}
+              >
+                {t(`days.${d}`)}
+              </button>
+            ))}
+          </div>
         </div>
-        {frequency === 'weekly' && (
-          <label className="flex flex-col gap-1 text-sm">
-            <span>{t('form.target')}: {target}</span>
-            <input type="range" min={1} max={7} value={target} onChange={(e) => setTarget(Number(e.target.value))} />
-          </label>
-        )}
         <div className="flex items-center justify-between text-sm">
           <span>{t('form.reminder')}</span>
           <input type="checkbox" checked={reminder} onChange={(e) => setReminder(e.target.checked)} className="w-5 h-5 accent-indigo-500" />

@@ -45,6 +45,7 @@ export interface HabitData {
   emoji: string;
   frequency: 'daily' | 'weekly';
   targetPerWeek: number;
+  scheduleDays: string;
   reminderEnabled: boolean;
   reminderTime: string;
   checkedToday: boolean;

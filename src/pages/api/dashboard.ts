@@ -49,6 +49,7 @@ export const GET: APIRoute = async ({ request }) => {
       targetPerWeek: h.targetPerWeek,
       reminderEnabled: h.reminderEnabled,
       reminderTime: h.reminderTime,
+      scheduleDays: h.scheduleDays,
       checkedToday: days.includes(today),
       streak: stats.streak,
       streakBest: Math.max(h.streakBest, stats.streak),

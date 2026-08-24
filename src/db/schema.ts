@@ -35,6 +35,7 @@ export const habits = pgTable(
     emoji: varchar('emoji', { length: 8 }).notNull().default('⭐'),
     frequency: varchar('frequency', { length: 10 }).notNull().default('daily'), // daily | weekly
     targetPerWeek: integer('target_per_week').notNull().default(7),
+    scheduleDays: varchar('schedule_days', { length: 20 }).notNull().default('0,1,2,3,4,5,6'), // 0=domingo..6=sábado
     reminderEnabled: boolean('reminder_enabled').notNull().default(false),
     reminderTime: varchar('reminder_time', { length: 5 }).notNull().default('09:00'),
     streakBest: integer('streak_best').notNull().default(0),

@@ -12,6 +12,7 @@ import {
   X,
 } from 'lucide-react';
 import { api, type CheckinResult, type DashboardData, type HabitData } from './lib/api';
+import { isScheduledOn } from '../../lib/game';
 import { I18nProvider, useI18n } from './lib/i18n';
 import { subscribeToPush } from './lib/push';
 import { DashboardView } from './views/DashboardView';
@@ -83,6 +84,7 @@ function AppInner({ view }: { view: View }) {
     const todayKey = now.toISOString().slice(0, 10);
     for (const h of data.habits) {
       if (!h.reminderEnabled || h.checkedToday || h.reminderTime !== hm) continue;
+      if (!isScheduledOn(h.scheduleDays, now)) continue;
       const key = `${h.id}:${todayKey}:${hm}`;
       if (reminderFiredRef.current.has(key)) continue;
       reminderFiredRef.current.add(key);
@@ -170,9 +172,43 @@ function AppInner({ view }: { view: View }) {
   const unread = data.stats.unreadNotifications;
 
   return (
-    <div className="min-h-screen max-w-md mx-auto px-3 pb-28">
+    <div className="min-h-screen lg:flex lg:items-start lg:justify-center lg:max-w-7xl lg:mx-auto lg:px-6">
+      <aside className="hidden lg:flex lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:flex-col lg:py-6 lg:mr-6">
+        <a href="/app" className="flex items-center gap-3 px-3 mb-8">
+          <div className="text-3xl sword-glow">⚔️</div>
+          <h1 className="text-2xl font-extrabold tracking-tight gold-text">{t('app.title')}</h1>
+        </a>
+        <nav className="flex flex-col gap-1.5">
+          {NAV_ITEMS.map((item) => (
+            <a
+              key={item.key}
+              href={item.href}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${view === item.key ? 'nav-item-active' : 'nav-item hover:bg-white/5'}`}
+            >
+              {item.icon}
+              {t(item.labelKey)}
+            </a>
+          ))}
+        </nav>
+        <div className="mt-auto panel p-3">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{data.user.avatarEmoji}</span>
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-sm truncate">{data.user.username}</div>
+              <div className="text-[11px] text-amber-300">
+                {data.user.xp} {t('dashboard.xp')} · {t('dashboard.level')} {data.user.level}
+              </div>
+            </div>
+          </div>
+          <div className="bar-track mt-2">
+            <div className="bar-fill" style={{ width: `${Math.round(data.user.progress * 100)}%` }} />
+          </div>
+        </div>
+      </aside>
+
+      <div className="flex-1 min-w-0 max-w-2xl mx-auto px-3 lg:px-0 lg:py-6 pb-28 lg:pb-10">
       <header className="flex items-center gap-3 py-3 border-b-2 border-slate-800">
-        <a href="/app" className="flex items-center gap-3">
+        <a href="/app" className="flex items-center gap-3 lg:hidden">
           <div className="text-2xl sword-glow">⚔️</div>
           <h1 className="text-xl font-extrabold tracking-tight gold-text">{t('app.title')}</h1>
         </a>
@@ -240,8 +276,9 @@ function AppInner({ view }: { view: View }) {
         {view === 'profile' && <ProfileView data={data} onSaved={load} pushToast={pushToast} />}
         {view === 'friends' && <FriendsView pushToast={pushToast} />}
       </main>
+      </div>
 
-      <nav className="safe-bottom fixed bottom-0 inset-x-0 bg-[#0b0e1a] border-t-2 border-slate-800">
+      <nav className="lg:hidden safe-bottom fixed bottom-0 inset-x-0 z-40 bg-[#0b0e1a] border-t-2 border-slate-800">
         <div className="max-w-md mx-auto grid grid-cols-6">
           {NAV_ITEMS.map((item) => (
             <a

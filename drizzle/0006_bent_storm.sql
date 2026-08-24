@@ -1,0 +1,1 @@
+ALTER TABLE "habits" ADD COLUMN "schedule_days" varchar(20) DEFAULT '0,1,2,3,4,5,6' NOT NULL;

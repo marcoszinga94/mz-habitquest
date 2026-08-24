@@ -6,9 +6,12 @@ import {
   computeStreak,
   completionsInWindow,
   evaluateAchievements,
+  isScheduledOn,
   levelFromXp,
   levelProgress,
+  parseScheduleDays,
   resolveReto,
+  scheduleToFrequency,
   xpForCheckin,
   xpForLevel,
 } from '../src/lib/game';
@@ -158,6 +161,28 @@ describe('logros', () => {
     expect(win.map((a) => a.key)).toContain('reto_win');
     expect(first.find((a) => a.key === 'reto_first')?.xp).toBe(50);
     expect(win.find((a) => a.key === 'reto_win')?.xp).toBe(150);
+  });
+});
+
+describe('agenda semanal', () => {
+  it('parseScheduleDays convierte y normaliza los días', () => {
+    expect([...parseScheduleDays('1,3,5')]).toEqual([1, 3, 5]);
+    expect(parseScheduleDays('').size).toBe(7);
+    expect(parseScheduleDays(null).size).toBe(7);
+    expect(parseScheduleDays('9,1').has(9)).toBe(false);
+  });
+
+  it('isScheduledOn respeta el día de la semana (0=domingo..6=sábado)', () => {
+    const lunes = new Date(2026, 7, 24); // 24/08/2026 es lunes
+    expect(lunes.getDay()).toBe(1);
+    expect(isScheduledOn('1,3,5', lunes)).toBe(true);
+    expect(isScheduledOn('1,3,5', new Date(2026, 7, 25))).toBe(false);
+    expect(isScheduledOn(undefined, lunes)).toBe(true);
+  });
+
+  it('scheduleToFrequency deriva frecuencia y meta semanal', () => {
+    expect(scheduleToFrequency(new Set([0, 1, 2, 3, 4, 5, 6]))).toEqual({ frequency: 'daily', targetPerWeek: 7 });
+    expect(scheduleToFrequency(new Set([1, 3, 5]))).toEqual({ frequency: 'weekly', targetPerWeek: 3 });
   });
 });
 

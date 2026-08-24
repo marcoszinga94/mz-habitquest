@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getDb } from '../../../db';
 import { habits } from '../../../db/schema';
 import { apiError, json, requireUser } from '../../../lib/http';
+import { parseScheduleDays, scheduleToFrequency } from '../../../lib/game';
 
 const patchSchema = z
   .object({
@@ -11,6 +12,7 @@ const patchSchema = z
     emoji: z.string().min(1).max(8).optional(),
     frequency: z.enum(['daily', 'weekly']).optional(),
     targetPerWeek: z.number().int().min(1).max(7).optional(),
+    scheduleDays: z.string().regex(/^([0-6](,[0-6])*)?$/).optional(),
     reminderEnabled: z.boolean().optional(),
     reminderTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
   })
@@ -28,9 +30,18 @@ export const PATCH: APIRoute = async ({ request, params }) => {
     .where(and(eq(habits.id, params.id ?? ''), eq(habits.userId, user.id)));
   if (existing.length === 0) return apiError(404, 'not_found');
 
+  const data: Record<string, unknown> = { ...parsed.data };
+  if (parsed.data.scheduleDays !== undefined) {
+    const days = parseScheduleDays(parsed.data.scheduleDays);
+    const derived = scheduleToFrequency(days);
+    data.scheduleDays = [...days].sort((a, b) => a - b).join(',');
+    data.frequency = derived.frequency;
+    data.targetPerWeek = derived.targetPerWeek;
+  }
+
   const [habit] = await db
     .update(habits)
-    .set(parsed.data)
+    .set(data)
     .where(eq(habits.id, existing[0].id))
     .returning();
   return json({ habit });

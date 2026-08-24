@@ -4,14 +4,15 @@ import { z } from 'zod';
 import { getDb } from '../../../db';
 import { checkins, habits } from '../../../db/schema';
 import { apiError, json, requireUser } from '../../../lib/http';
-import { addDays, toDateKey } from '../../../lib/game';
+import { addDays, toDateKey, ALL_DAYS, parseScheduleDays, scheduleToFrequency } from '../../../lib/game';
 import { computeHabitStats } from '../../../lib/engine';
 
 const createSchema = z.object({
   name: z.string().min(1).max(80),
   emoji: z.string().min(1).max(8).default('⭐'),
-  frequency: z.enum(['daily', 'weekly']).default('daily'),
-  targetPerWeek: z.number().int().min(1).max(7).default(7),
+  frequency: z.enum(['daily', 'weekly']).optional(),
+  targetPerWeek: z.number().int().min(1).max(7).optional(),
+  scheduleDays: z.string().regex(/^([0-6](,[0-6])*)?$/).optional(),
   reminderEnabled: z.boolean().default(false),
   reminderTime: z.string().regex(/^\d{2}:\d{2}$/).default('09:00'),
 });
@@ -50,6 +51,7 @@ export const GET: APIRoute = async ({ request }) => {
       targetPerWeek: h.targetPerWeek,
       reminderEnabled: h.reminderEnabled,
       reminderTime: h.reminderTime,
+      scheduleDays: h.scheduleDays,
       checkedToday: days.includes(today),
       streak: stats.streak,
       streakBest: Math.max(h.streakBest, stats.streak),
@@ -84,6 +86,20 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ habit }, 201);
   }
 
-  const [habit] = await db.insert(habits).values({ userId: user.id, ...parsed.data }).returning();
+  const days = parseScheduleDays(parsed.data.scheduleDays ?? ALL_DAYS);
+  const derived = scheduleToFrequency(days);
+  const [habit] = await db
+    .insert(habits)
+    .values({
+      userId: user.id,
+      name: parsed.data.name,
+      emoji: parsed.data.emoji,
+      scheduleDays: [...days].sort((a, b) => a - b).join(','),
+      frequency: derived.frequency,
+      targetPerWeek: derived.targetPerWeek,
+      reminderEnabled: parsed.data.reminderEnabled,
+      reminderTime: parsed.data.reminderTime,
+    })
+    .returning();
   return json({ habit }, 201);
 };

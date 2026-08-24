@@ -34,8 +34,38 @@ const { title } = Astro.props;
   </head>
   <body>
     <div class="sky" aria-hidden="true"></div>
+    <div class="landscape" aria-hidden="true">
+      <svg viewBox="0 0 1440 420" preserveAspectRatio="none" class="absolute bottom-0 left-0 w-full h-full">
+        <defs>
+          <linearGradient id="mtnFar" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2a2055" stop-opacity="0.55" />
+            <stop offset="1" stop-color="#0b0919" />
+          </linearGradient>
+          <linearGradient id="mtnNear" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#191237" stop-opacity="0.95" />
+            <stop offset="1" stop-color="#0a0816" />
+          </linearGradient>
+        </defs>
+        <path fill="url(#mtnFar)" d="M0,260 L90,150 L200,240 L340,120 L480,270 L620,150 L760,260 L900,140 L1040,260 L1180,150 L1320,250 L1440,180 L1440,420 L0,420 Z" />
+        <path fill="url(#mtnNear)" d="M0,330 L120,210 L250,320 L400,180 L560,340 L700,220 L860,330 L1020,200 L1180,340 L1320,230 L1440,320 L1440,420 L0,420 Z" />
+      </svg>
+    </div>
     <div class="aurora" aria-hidden="true"></div>
+    <div class="fog" aria-hidden="true"></div>
     <div class="dust" aria-hidden="true"></div>
+    <div class="embers" aria-hidden="true">
+      <i style="--x:8%;--d:0s;--t:9s"></i>
+      <i style="--x:22%;--d:2s;--t:11s"></i>
+      <i style="--x:36%;--d:5s;--t:8s"></i>
+      <i style="--x:50%;--d:1s;--t:12s"></i>
+      <i style="--x:63%;--d:4s;--t:9s"></i>
+      <i style="--x:74%;--d:7s;--t:10s"></i>
+      <i style="--x:85%;--d:3s;--t:8s"></i>
+      <i style="--x:93%;--d:6s;--t:11s"></i>
+      <i style="--x:15%;--d:8s;--t:13s"></i>
+      <i style="--x:58%;--d:9s;--t:9s"></i>
+    </div>
+    <div class="vignette" aria-hidden="true"></div>
     <ClientRouter />
     <slot />
     {

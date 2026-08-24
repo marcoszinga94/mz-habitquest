@@ -2,7 +2,7 @@ import webpush from 'web-push';
 import { and, eq } from 'drizzle-orm';
 import type { Db } from '../db';
 import { checkins, habits, pushSubscriptions } from '../db/schema';
-import { toDateKey } from './game';
+import { isScheduledOn, toDateKey } from './game';
 
 export interface PushSubscriptionInput {
   endpoint: string;
@@ -101,6 +101,7 @@ export async function sendDueReminders(db: Db, now: Date): Promise<number> {
 
   const dueByUser = new Map<string, { title: string; body: string }[]>();
   for (const h of habitRows) {
+    if (!isScheduledOn(h.scheduleDays, now)) continue;
     const [hh, mm] = h.reminderTime.split(':').map(Number);
     const reminderMinutes = hh * 60 + mm;
     if (nowMinutes >= reminderMinutes && nowMinutes < reminderMinutes + 15) {
