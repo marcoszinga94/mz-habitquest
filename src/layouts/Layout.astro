@@ -54,17 +54,46 @@ const { title } = Astro.props;
       <div class="aurora"></div>
       <div class="fog"></div>
       <div class="dust"></div>
+      <div class="bonfire">
+        <div class="bonfire-glow"></div>
+        <svg class="flame-svg" viewBox="0 0 120 140" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="flameOuter" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#ffd166" stop-opacity="0.95" />
+              <stop offset="0.5" stop-color="#fb923c" stop-opacity="0.7" />
+              <stop offset="1" stop-color="#ea580c" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient id="flameInner" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#fff7d6" stop-opacity="0.95" />
+              <stop offset="0.55" stop-color="#ffd166" stop-opacity="0.6" />
+              <stop offset="1" stop-color="#fb923c" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <path d="M60,10 C70,30 92,44 92,72 C92,98 74,116 60,132 C46,116 28,98 28,72 C28,44 50,30 60,10 Z" fill="url(#flameOuter)" />
+          <path d="M60,30 C68,46 80,58 80,78 C80,96 70,108 60,120 C50,108 40,96 40,78 C40,58 52,46 60,30 Z" fill="url(#flameInner)" />
+        </svg>
+        <svg class="sword-svg" viewBox="0 0 120 140" preserveAspectRatio="none">
+          <g fill="#0d0a14">
+            <path d="M58,18 L62,18 L62,86 L58,86 Z" />
+            <rect x="50" y="86" width="20" height="5" rx="1" />
+            <rect x="58" y="91" width="4" height="22" />
+            <circle cx="60" cy="118" r="4" />
+          </g>
+        </svg>
+      </div>
       <div class="embers">
-        <i style="--x:8%;--d:0s;--t:9s"></i>
-        <i style="--x:22%;--d:2s;--t:11s"></i>
-        <i style="--x:36%;--d:5s;--t:8s"></i>
-        <i style="--x:50%;--d:1s;--t:12s"></i>
-        <i style="--x:63%;--d:4s;--t:9s"></i>
-        <i style="--x:74%;--d:7s;--t:10s"></i>
-        <i style="--x:85%;--d:3s;--t:8s"></i>
-        <i style="--x:93%;--d:6s;--t:11s"></i>
-        <i style="--x:15%;--d:8s;--t:13s"></i>
-        <i style="--x:58%;--d:9s;--t:9s"></i>
+        <i style="--x:8%;--d:0s;--t:9s;--dx:-6px"></i>
+        <i style="--x:22%;--d:2s;--t:11s;--dx:8px"></i>
+        <i style="--x:36%;--d:5s;--t:8s;--dx:-10px"></i>
+        <i style="--x:44%;--d:1s;--t:12s;--dx:4px"></i>
+        <i style="--x:50%;--d:6s;--t:9s;--dx:-4px"></i>
+        <i style="--x:54%;--d:0.5s;--t:10s;--dx:7px"></i>
+        <i style="--x:60%;--d:3s;--t:8s;--dx:-8px"></i>
+        <i style="--x:70%;--d:7s;--t:10s;--dx:5px"></i>
+        <i style="--x:82%;--d:4s;--t:11s;--dx:-5px"></i>
+        <i style="--x:90%;--d:8s;--t:9s;--dx:6px"></i>
+        <i style="--x:46%;--d:9s;--t:13s;--dx:3px"></i>
+        <i style="--x:56%;--d:2.5s;--t:7s;--dx:-3px"></i>
       </div>
     </div>
     <div class="vignette" aria-hidden="true"></div>
