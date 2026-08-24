@@ -413,7 +413,13 @@ function LeaderboardModal({
               className={`flex items-center gap-2 rounded-lg p-2 ${p.userId === data?.me ? 'bg-indigo-900/40 border border-indigo-500/40' : 'bg-slate-900/50'}`}
             >
               <span className="w-7 text-center text-lg">{medals[i] ?? `${i + 1}.`}</span>
-              <span className="text-lg">{p.avatarEmoji}</span>
+              <div className="w-9 h-9 rounded-full bg-indigo-950 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                {p.avatarPhoto ? (
+                  <img src={p.avatarPhoto} alt={p.username} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-lg">{p.avatarEmoji}</span>
+                )}
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold truncate">
                   {p.username}

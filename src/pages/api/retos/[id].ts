@@ -36,6 +36,7 @@ export const GET: APIRoute = async ({ request, params }) => {
       joinedAt: retoParticipants.joinedAt,
       username: users.username,
       avatarEmoji: users.avatarEmoji,
+      avatarPhoto: users.avatarPhoto,
     })
     .from(retoParticipants)
     .innerJoin(users, eq(users.id, retoParticipants.userId))

@@ -160,6 +160,7 @@ export interface RetoParticipantData {
   userId: string;
   username: string;
   avatarEmoji: string;
+  avatarPhoto: string | null;
   progress: number;
   prizeFulfilled: boolean;
   prizeConfirmed: boolean;
