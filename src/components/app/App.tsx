@@ -221,7 +221,13 @@ function AppInner({ view }: { view: View }) {
         </nav>
         <div className="mt-auto panel p-3">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">{data.user.avatarEmoji}</span>
+            <div className="w-10 h-10 rounded-full bg-indigo-950 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+              {data.user.avatarPhoto ? (
+                <img src={data.user.avatarPhoto} alt={data.user.username} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-lg">{data.user.avatarEmoji}</span>
+              )}
+            </div>
             <div className="flex-1 min-w-0">
               <div className="font-bold text-sm truncate">{data.user.username}</div>
               <div className="text-[11px] text-amber-300">

@@ -19,6 +19,11 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Evita el salto de layout cuando aparece/desaparece la barra de scroll */
+html {
+  scrollbar-gutter: stable;
+}
+
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
