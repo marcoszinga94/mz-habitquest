@@ -140,7 +140,6 @@ html {
   height: 360px;
   transform: translateX(-50%);
   pointer-events: none;
-  animation: fireFlicker 2.6s ease-in-out infinite;
 }
 .bonfire-glow {
   position: absolute;
@@ -150,12 +149,22 @@ html {
     radial-gradient(60% 52% at 50% 84%, rgba(255, 120, 30, 0.32), transparent 75%),
     radial-gradient(90% 70% at 50% 90%, rgba(200, 70, 10, 0.16), transparent 80%);
   filter: blur(10px);
+  animation: glowBreath 5s ease-in-out infinite;
 }
 .bonfire .fire-svg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+/* La llama baila: se estira y se inclina como fuego vivo */
+.bonfire .flame {
+  transform-origin: 50% 100%;
+  animation: flameDance 1.6s ease-in-out infinite;
+}
+.bonfire .flame-inner {
+  animation-duration: 1s;
+  animation-delay: 0.12s;
 }
 
 /* Chispas de la hoguera que ascienden con el calor */
@@ -454,23 +463,29 @@ html {
   }
 }
 
-@keyframes fireFlicker {
+@keyframes flameDance {
   0%,
   100% {
-    transform: translateX(-50%) scale(1, 1);
-    filter: brightness(1);
+    transform: scale(1, 1) skewX(0deg);
   }
-  28% {
-    transform: translateX(-50%) scale(1.02, 1.05);
-    filter: brightness(1.12);
+  20% {
+    transform: scale(1.04, 1.14) skewX(2.5deg);
   }
-  56% {
-    transform: translateX(-50%) scale(0.98, 0.96);
-    filter: brightness(0.92);
+  45% {
+    transform: scale(0.96, 0.9) skewX(-2.5deg);
   }
-  78% {
-    transform: translateX(-50%) scale(1.01, 1.03);
-    filter: brightness(1.06);
+  70% {
+    transform: scale(1.03, 1.1) skewX(1.5deg);
+  }
+}
+
+@keyframes glowBreath {
+  0%,
+  100% {
+    opacity: 0.92;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
@@ -551,7 +566,8 @@ html {
   .fog,
   .dust,
   .embers i,
-  .bonfire,
+  .bonfire .flame,
+  .bonfire-glow,
   .avatar-glow,
   .bar-fill,
   .bar-fill-gold,
