@@ -51,12 +51,16 @@ html {
   z-index: 1;
 }
 
-/* Cielo oscuro con resplandor cálido de hoguera abajo */
+/* Cielo oscuro con luna llena y resplandor cálido de hoguera abajo */
 .sky {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
+    /* Luna llena con halo */
+    radial-gradient(circle at 78% 14%, rgba(253, 230, 138, 0.12) 0%, transparent 7%),
+    radial-gradient(circle at 78% 14%, #f3e6c0 0%, #ead9a8 30%, rgba(234, 217, 168, 0) 32%),
+    radial-gradient(circle at 78% 14%, rgba(253, 230, 138, 0.4) 0%, rgba(240, 180, 41, 0.16) 42%, transparent 62%),
     /* Resplandor cálido que asoma desde el horizonte */
     radial-gradient(60% 40% at 50% 108%, rgba(255, 120, 40, 0.18), transparent 65%),
     /* Estrellas tenues */
@@ -131,15 +135,40 @@ html {
   animation: twinkle 5s ease-in-out infinite;
 }
 
+/* El piso: suelo visible donde se asienta la hoguera */
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 16vh;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 120% at 50% 0%, rgba(255, 160, 60, 0.16), transparent 65%),
+    linear-gradient(180deg, #171121 0%, #0b0812 100%);
+}
+
 /* La hoguera: llama, leños y resplandor en el centro del horizonte */
 .bonfire {
   position: absolute;
   left: 50%;
-  bottom: -22px;
+  bottom: -8px;
   width: 460px;
   height: 360px;
   transform: translateX(-50%);
   pointer-events: none;
+}
+/* Sombra de contacto que asienta el fuego sobre el piso */
+.bonfire-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  width: 240px;
+  height: 28px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.6), transparent 70%);
+  filter: blur(5px);
 }
 .bonfire-glow {
   position: absolute;
