@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ACHIEVEMENTS,
   activeStreakInWindow,
   addDays,
   computeStreak,
@@ -126,6 +127,37 @@ describe('logros', () => {
       [],
     );
     expect(unlocked).toHaveLength(0);
+  });
+
+  it('cada logro otorga XP y todos tienen recompensa', () => {
+    for (const a of ACHIEVEMENTS) {
+      expect(a.xp).toBeGreaterThan(0);
+    }
+  });
+
+  it('la recompensa XP de los desbloqueados se puede sumar', () => {
+    const unlocked = evaluateAchievements(
+      { totalCompletions: 100, streak: 30, level: 10, xp: 2700, retosJoined: 1, retosWon: 1, checkinsToday: 1 },
+      [],
+    );
+    const total = unlocked.reduce((sum, a) => sum + a.xp, 0);
+    expect(total).toBeGreaterThan(0);
+    expect(unlocked).toHaveLength(ACHIEVEMENTS.length);
+  });
+
+  it('los retos desbloquean reto_first y reto_win con su XP', () => {
+    const first = evaluateAchievements(
+      { totalCompletions: 0, streak: 0, level: 1, xp: 0, retosJoined: 1, retosWon: 0, checkinsToday: 0 },
+      [],
+    );
+    const win = evaluateAchievements(
+      { totalCompletions: 0, streak: 0, level: 1, xp: 0, retosJoined: 1, retosWon: 1, checkinsToday: 0 },
+      ['reto_first'],
+    );
+    expect(first.map((a) => a.key)).toContain('reto_first');
+    expect(win.map((a) => a.key)).toContain('reto_win');
+    expect(first.find((a) => a.key === 'reto_first')?.xp).toBe(50);
+    expect(win.find((a) => a.key === 'reto_win')?.xp).toBe(150);
   });
 });
 

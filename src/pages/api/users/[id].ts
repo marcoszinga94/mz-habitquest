@@ -39,6 +39,7 @@ export const GET: APIRoute = async ({ request, params }) => {
     icon: a.icon,
     nameKey: a.nameKey,
     descKey: a.descKey,
+    xp: a.xp,
     unlocked: owned.has(a.key),
   }));
 

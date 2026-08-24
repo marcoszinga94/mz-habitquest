@@ -10,6 +10,7 @@ import {
   toDateKey,
   xpForCheckin,
   type AchievementDef,
+  type AchievementState,
 } from './game';
 
 export function checkedDaysOf(checkinsOfHabit: { day: string }[]): string[] {
@@ -82,54 +83,68 @@ export async function applyCheckin(
     db.update(users).set({ xp: newXp }).where(eq(users.id, user.id)),
   ]);
 
-  const unlocked = await unlockAchievements(db, user.id, {
+  const { unlocked, xpGained: achievementXp } = await unlockAchievements(db, user.id, {
     totalCompletions: habit.totalCompletions + 1,
     streak,
     level: afterLevel,
     xp: newXp,
+    retosJoined: 0,
+    retosWon: 0,
+    checkinsToday: 1,
   });
 
+  const finalXp = newXp + achievementXp;
+  const finalLevel = levelFromXp(finalXp);
+
   return {
-    xpGained,
-    levelUp: afterLevel > beforeLevel,
-    newLevel: afterLevel,
+    xpGained: xpGained + achievementXp,
+    levelUp: finalLevel > beforeLevel,
+    newLevel: finalLevel,
     unlocked,
     streak,
   };
 }
 
-async function unlockAchievements(
+export interface UnlockResult {
+  unlocked: AchievementDef[];
+  xpGained: number;
+}
+
+/** Inserta los logros recién desbloqueados, crea su notificación y otorga su XP. */
+export async function unlockAchievements(
   db: Db,
   userId: string,
-  state: {
-    totalCompletions: number;
-    streak: number;
-    level: number;
-    xp: number;
-  },
-): Promise<AchievementDef[]> {
+  state: AchievementState,
+): Promise<UnlockResult> {
   const owned = await db
     .select({ key: achievements.key })
     .from(achievements)
     .where(eq(achievements.userId, userId));
-  const unlocked = evaluateAchievements(
-    { ...state, retosJoined: 0, retosWon: 0, checkinsToday: 0 },
-    owned.map((a) => a.key),
-  );
+  const unlocked = evaluateAchievements(state, owned.map((a) => a.key));
+  const xpGained = unlocked.reduce((sum, a) => sum + a.xp, 0);
 
   if (unlocked.length > 0) {
-    const values = unlocked.map((a) => ({ userId, key: a.key }));
-    await db.insert(achievements).values(values);
-    await db.insert(notifications).values(
-      values.map((v, i) => ({
-        userId,
-        type: 'achievement',
-        title: v.key,
-        body: unlocked[i].key,
-      })),
-    );
+    await db.batch([
+      db
+        .insert(achievements)
+        .values(unlocked.map((a) => ({ userId, key: a.key }))),
+      db
+        .insert(notifications)
+        .values(
+          unlocked.map((a) => ({
+            userId,
+            type: 'achievement',
+            title: `ach.${a.key}`,
+            body: `+${a.xp} XP`,
+          })),
+        ),
+      db
+        .update(users)
+        .set({ xp: sql`${users.xp} + ${xpGained}` })
+        .where(eq(users.id, userId)),
+    ]);
   }
-  return unlocked;
+  return { unlocked, xpGained };
 }
 
 export async function createNotification(

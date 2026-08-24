@@ -68,10 +68,21 @@ export const POST: APIRoute = async ({ request }) => {
   const db = getDb();
 
   const dup = await db
-    .select({ id: habits.id })
+    .select()
     .from(habits)
     .where(and(eq(habits.userId, user.id), eq(habits.name, parsed.data.name)));
-  if (dup.length > 0) return apiError(409, 'habit_exists');
+  const active = dup.find((h) => !h.archived);
+  if (active) return apiError(409, 'habit_exists');
+
+  const archived = dup.find((h) => h.archived);
+  if (archived) {
+    const [habit] = await db
+      .update(habits)
+      .set({ archived: false })
+      .where(eq(habits.id, archived.id))
+      .returning();
+    return json({ habit }, 201);
+  }
 
   const [habit] = await db.insert(habits).values({ userId: user.id, ...parsed.data }).returning();
   return json({ habit }, 201);

@@ -100,6 +100,7 @@ export interface AchievementDef {
   icon: string;
   nameKey: string;
   descKey: string;
+  xp: number;
   condition: (s: AchievementState) => boolean;
 }
 
@@ -119,6 +120,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     icon: '🌱',
     nameKey: 'ach.first_step',
     descKey: 'ach.first_step_desc',
+    xp: 25,
     condition: (s) => s.totalCompletions >= 1,
   },
   {
@@ -126,6 +128,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     icon: '🔥',
     nameKey: 'ach.streak_7',
     descKey: 'ach.streak_7_desc',
+    xp: 75,
     condition: (s) => s.streak >= 7,
   },
   {
@@ -133,6 +136,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     icon: '⚡',
     nameKey: 'ach.streak_30',
     descKey: 'ach.streak_30_desc',
+    xp: 250,
     condition: (s) => s.streak >= 30,
   },
   {
@@ -140,6 +144,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     icon: '🎖️',
     nameKey: 'ach.level_5',
     descKey: 'ach.level_5_desc',
+    xp: 100,
     condition: (s) => s.level >= 5,
   },
   {
@@ -147,6 +152,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     icon: '👑',
     nameKey: 'ach.level_10',
     descKey: 'ach.level_10_desc',
+    xp: 200,
     condition: (s) => s.level >= 10,
   },
   {
@@ -154,6 +160,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     icon: '💯',
     nameKey: 'ach.completions_100',
     descKey: 'ach.completions_100_desc',
+    xp: 150,
     condition: (s) => s.totalCompletions >= 100,
   },
   {
@@ -161,6 +168,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     icon: '🤝',
     nameKey: 'ach.reto_first',
     descKey: 'ach.reto_first_desc',
+    xp: 50,
     condition: (s) => s.retosJoined >= 1,
   },
   {
@@ -168,6 +176,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     icon: '🏆',
     nameKey: 'ach.reto_win',
     descKey: 'ach.reto_win_desc',
+    xp: 150,
     condition: (s) => s.retosWon >= 1,
   },
 ];

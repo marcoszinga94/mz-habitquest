@@ -11,7 +11,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { api, type DashboardData, type HabitData } from './lib/api';
+import { api, type CheckinResult, type DashboardData, type HabitData } from './lib/api';
 import { I18nProvider, useI18n } from './lib/i18n';
 import { subscribeToPush } from './lib/push';
 import { DashboardView } from './views/DashboardView';
@@ -124,7 +124,7 @@ function AppInner({ view }: { view: View }) {
 
   const handleCheckin = useCallback(
     async (habit: HabitData) => {
-      const res = await api<{ result?: { xpGained: number; levelUp: boolean; newLevel: number; unlocked: { key: string }[] } }>(
+      const res = await api<{ result?: CheckinResult }>(
         `/api/habits/${habit.id}/checkin`,
         { method: 'POST' },
       );
@@ -137,7 +137,7 @@ function AppInner({ view }: { view: View }) {
         });
         if (r.unlocked.length > 0) {
           for (const d of r.unlocked) {
-            pushToast({ icon: 'achievement', title: t(d.key), body: t('achievements.title') });
+            pushToast({ icon: 'achievement', title: t(d.nameKey), body: `+${d.xp} XP` });
           }
         }
       }
@@ -291,6 +291,7 @@ function NotificationsPopover({
 }) {
   const mapTitle = (title: string) => {
     if (title.startsWith('reto.') || title.startsWith('friends.')) return t(`notif.${title}`, {});
+    if (title.startsWith('ach.')) return t(title);
     return title;
   };
   return (

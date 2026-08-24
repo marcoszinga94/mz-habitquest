@@ -16,13 +16,15 @@ export function AchievementsView({ data }: { data: DashboardData }) {
             <span className="text-3xl">{a.icon}</span>
             <span className="font-bold text-sm">{t(a.nameKey)}</span>
             <span className="text-[11px] text-slate-400">{t(a.descKey)}</span>
+            <span className="text-[11px] font-bold text-emerald-400">+{a.xp} XP</span>
           </div>
         ))}
         {locked.map((a) => (
-          <div key={a.key} className="panel p-3 flex flex-col items-center text-center gap-1 opacity-50 grayscale">
+          <div key={a.key} className="panel p-3 flex flex-col items-center text-center gap-1 opacity-70 grayscale">
             <Lock className="text-slate-500 mt-2" size={20} />
             <span className="font-bold text-sm text-slate-500">{t(a.nameKey)}</span>
-            <span className="text-[11px] text-slate-600">{t('achievements.locked')}</span>
+            <span className="text-[11px] text-slate-600">{t(a.descKey)}</span>
+            <span className="text-[11px] font-bold text-slate-500">+{a.xp} XP</span>
           </div>
         ))}
       </div>

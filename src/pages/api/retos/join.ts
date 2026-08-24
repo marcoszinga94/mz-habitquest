@@ -2,9 +2,10 @@ import type { APIRoute } from 'astro';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb } from '../../../db';
-import { retoParticipants, retos } from '../../../db/schema';
+import { retoParticipants, retos, users } from '../../../db/schema';
 import { apiError, json, requireUser } from '../../../lib/http';
-import { createNotification } from '../../../lib/engine';
+import { createNotification, unlockAchievements } from '../../../lib/engine';
+import { levelFromXp } from '../../../lib/game';
 import { refreshRetoProgress } from '../../../lib/retos';
 
 const schema = z
@@ -37,6 +38,22 @@ export const POST: APIRoute = async ({ request }) => {
 
   await refreshRetoProgress(db, reto);
   await createNotification(db, user.id, 'reto', 'reto.joined', reto.name);
+
+  const joined = await db
+    .select()
+    .from(retoParticipants)
+    .where(eq(retoParticipants.userId, user.id));
+  const freshUser = await db.select().from(users).where(eq(users.id, user.id));
+  const me = freshUser[0] ?? user;
+  await unlockAchievements(db, user.id, {
+    totalCompletions: 0,
+    streak: 0,
+    level: levelFromXp(me.xp),
+    xp: me.xp,
+    retosJoined: joined.length,
+    retosWon: 0,
+    checkinsToday: 0,
+  });
 
   return json({ reto });
 };

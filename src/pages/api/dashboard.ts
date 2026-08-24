@@ -90,6 +90,7 @@ export const GET: APIRoute = async ({ request }) => {
     icon: a.icon,
     nameKey: a.nameKey,
     descKey: a.descKey,
+    xp: a.xp,
     unlocked: unlocked.has(a.key),
   }));
 

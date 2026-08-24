@@ -103,7 +103,7 @@ function HabitFormModal({
       }
       onSaved();
     } catch (e: any) {
-      setError(e?.message === 'habit_exists' ? t('auth.error.email_in_use') : t('common.error'));
+      setError(e?.message === 'habit_exists' ? t('habits.error.exists') : t('common.error'));
     }
   };
 

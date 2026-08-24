@@ -1,8 +1,9 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
 import type { Db } from '../db';
-import { notifications, retoCheckins, retoParticipants, retos } from '../db/schema';
+import { notifications, retoCheckins, retoParticipants, retos, users } from '../db/schema';
 import type { Reto, User } from '../db/schema';
-import { activeStreakInWindow, addDays, completionsInWindow, resolveReto, toDateKey } from './game';
+import { activeStreakInWindow, addDays, completionsInWindow, levelFromXp, resolveReto, toDateKey } from './game';
+import { unlockAchievements } from './engine';
 import { sendPushToUser } from './push';
 
 export async function computeRetoProgress(
@@ -113,6 +114,26 @@ export async function finishReto(db: Db, reto: Reto): Promise<void> {
       });
     }
   }
+
+  if (result.winnerUserId) {
+    const won = await db
+      .select({ id: retos.id })
+      .from(retos)
+      .where(and(eq(retos.status, 'finished'), eq(retos.winnerId, result.winnerUserId)));
+    const winnerRow = await db.select().from(users).where(eq(users.id, result.winnerUserId));
+    const winner = winnerRow[0];
+    if (winner) {
+      await unlockAchievements(db, result.winnerUserId, {
+        totalCompletions: 0,
+        streak: 0,
+        level: levelFromXp(winner.xp),
+        xp: winner.xp,
+        retosJoined: 0,
+        retosWon: won.length,
+        checkinsToday: 0,
+      });
+    }
+  }
 }
 
 export async function finishExpiredRetosForUser(db: Db, userId: string): Promise<void> {
@@ -168,6 +189,15 @@ export async function createReto(
     .returning();
 
   await db.insert(retoParticipants).values({ retoId: reto.id, userId: creator.id });
+  await unlockAchievements(db, creator.id, {
+    totalCompletions: 0,
+    streak: 0,
+    level: levelFromXp(creator.xp),
+    xp: creator.xp,
+    retosJoined: 1,
+    retosWon: 0,
+    checkinsToday: 0,
+  });
   return reto;
 }
 

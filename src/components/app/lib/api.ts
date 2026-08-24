@@ -59,6 +59,7 @@ export interface AchievementData {
   icon: string;
   nameKey: string;
   descKey: string;
+  xp: number;
   unlocked: boolean;
 }
 
@@ -108,7 +109,7 @@ export interface CheckinResult {
   xpGained: number;
   levelUp: boolean;
   newLevel: number;
-  unlocked: { key: string }[];
+  unlocked: { key: string; nameKey: string; xp: number }[];
   streak: number;
 }
 
