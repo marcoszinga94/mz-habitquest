@@ -1,4 +1,4 @@
-import { Flame, Swords, Zap } from 'lucide-react';
+import { ChevronRight, Flame, Swords, Zap } from 'lucide-react';
 import type { DashboardData, HabitData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
 
@@ -78,12 +78,11 @@ export function DashboardView({
         </button>
       )}
 
-      <section className="panel p-4">
+      <section className="panel p-4 relative">
+        <a href="/app/habits" className="absolute inset-0 rounded-lg" aria-label={t('nav.habits')} />
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold">{t('habits.title')}</h3>
-          <a href="/app/habits" className="text-xs text-indigo-300 hover:underline">
-            →
-          </a>
+          <ChevronRight size={16} className="text-indigo-300 pointer-events-none" />
         </div>
         {data.habits.length === 0 ? (
           <div className="text-sm text-slate-400 text-center py-6">{t('habits.empty')}</div>
@@ -103,7 +102,7 @@ export function DashboardView({
                 <button
                   onClick={() => onCheckin(h)}
                   disabled={h.checkedToday}
-                  className={`btn px-3 py-1.5 text-sm ${h.checkedToday ? 'btn-gold opacity-70' : 'btn-primary'}`}
+                  className={`relative z-10 btn px-3 py-1.5 text-sm ${h.checkedToday ? 'btn-gold opacity-70 pointer-events-none' : 'btn-primary'}`}
                 >
                   {h.checkedToday ? t('habits.checked') : t('habits.check')}
                 </button>
@@ -113,12 +112,11 @@ export function DashboardView({
         )}
       </section>
 
-      <section className="panel p-4">
+      <section className="panel p-4 relative">
+        <a href="/app/retos" className="absolute inset-0 rounded-lg" aria-label={t('nav.retos')} />
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold">{t('retos.title')}</h3>
-          <a href="/app/retos" className="text-xs text-indigo-300 hover:underline">
-            →
-          </a>
+          <ChevronRight size={16} className="text-indigo-300 pointer-events-none" />
         </div>
         {data.retos.length === 0 ? (
           <div className="text-sm text-slate-400 text-center py-6">{t('retos.empty')}</div>
