@@ -1,3 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <text x="64" y="68" text-anchor="middle" dominant-baseline="central" font-size="96">⚔️</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a" />
+      <stop offset="1" stop-color="#e8920c" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="#151027" />
+  <g fill="url(#gold)" stroke="#7a5200" stroke-width="6" stroke-linejoin="round">
+    <g transform="rotate(45 256 256)">
+      <polygon points="256,128 280,220 288,242 224,242 232,220" />
+      <rect x="216" y="242" width="80" height="14" rx="5" />
+      <rect x="248" y="256" width="16" height="30" rx="3" />
+      <circle cx="256" cy="298" r="13" />
+    </g>
+    <g transform="rotate(-45 256 256)">
+      <polygon points="256,128 280,220 288,242 224,242 232,220" />
+      <rect x="216" y="242" width="80" height="14" rx="5" />
+      <rect x="248" y="256" width="16" height="30" rx="3" />
+      <circle cx="256" cy="298" r="13" />
+    </g>
+  </g>
 </svg>
