@@ -56,7 +56,7 @@ const { title } = Astro.props;
       <div class="dust"></div>
       <div class="bonfire">
         <div class="bonfire-glow"></div>
-        <svg class="flame-svg" viewBox="0 0 120 140" preserveAspectRatio="none">
+        <svg class="fire-svg" viewBox="0 0 160 120" preserveAspectRatio="none">
           <defs>
             <linearGradient id="flameOuter" x1="0" y1="1" x2="0" y2="0">
               <stop offset="0" stop-color="#ffd166" stop-opacity="0.95" />
@@ -69,16 +69,20 @@ const { title } = Astro.props;
               <stop offset="1" stop-color="#fb923c" stop-opacity="0" />
             </linearGradient>
           </defs>
-          <path d="M60,10 C70,30 92,44 92,72 C92,98 74,116 60,132 C46,116 28,98 28,72 C28,44 50,30 60,10 Z" fill="url(#flameOuter)" />
-          <path d="M60,30 C68,46 80,58 80,78 C80,96 70,108 60,120 C50,108 40,96 40,78 C40,58 52,46 60,30 Z" fill="url(#flameInner)" />
-        </svg>
-        <svg class="sword-svg" viewBox="0 0 120 140" preserveAspectRatio="none">
-          <g fill="#0d0a14">
-            <path d="M58,18 L62,18 L62,86 L58,86 Z" />
-            <rect x="50" y="86" width="20" height="5" rx="1" />
-            <rect x="58" y="91" width="4" height="22" />
-            <circle cx="60" cy="118" r="4" />
+          <g>
+            <rect x="32" y="94" width="96" height="13" rx="6.5" fill="#5b3a1e" />
+            <rect x="26" y="82" width="106" height="13" rx="6.5" fill="#6b4423" transform="rotate(-11 79 88)" />
+            <rect x="28" y="82" width="106" height="13" rx="6.5" fill="#4e3018" transform="rotate(11 81 88)" />
           </g>
+          <g>
+            <ellipse cx="14" cy="106" rx="11" ry="8" fill="#4a4a55" />
+            <ellipse cx="146" cy="106" rx="11" ry="8" fill="#4a4a55" />
+            <ellipse cx="38" cy="112" rx="10" ry="7" fill="#55555f" />
+            <ellipse cx="122" cy="112" rx="10" ry="7" fill="#55555f" />
+            <ellipse cx="80" cy="114" rx="12" ry="8" fill="#3c3c47" />
+          </g>
+          <path d="M80,8 C90,30 112,46 112,72 C112,96 94,104 80,110 C66,104 48,96 48,72 C48,46 70,30 80,8 Z" fill="url(#flameOuter)" />
+          <path d="M80,30 C88,46 100,60 100,80 C100,94 90,102 80,108 C70,102 60,94 60,80 C60,60 72,46 80,30 Z" fill="url(#flameInner)" />
         </svg>
       </div>
       <div class="embers">
