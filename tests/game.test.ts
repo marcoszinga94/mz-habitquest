@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   activeStreakInWindow,
   addDays,
-  computeMissedDays,
   computeStreak,
   completionsInWindow,
   evaluateAchievements,
@@ -70,14 +69,6 @@ describe('rachas', () => {
 
   it('con lista vacía la racha es 0', () => {
     expect(computeStreak([], today)).toBe(0);
-  });
-});
-
-describe('días perdidos', () => {
-  it('cuenta los días debidos sin check-in', () => {
-    const checked = ['2026-08-22'];
-    const due = ['2026-08-23', '2026-08-22', '2026-08-21'];
-    expect(computeMissedDays(checked, due)).toBe(2);
   });
 });
 

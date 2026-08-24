@@ -4,7 +4,6 @@ import { achievements, checkins, habits, notifications, users } from '../db/sche
 import type { Habit, User } from '../db/schema';
 import {
   addDays,
-  computeMissedDays,
   computeStreak,
   evaluateAchievements,
   levelFromXp,
@@ -15,37 +14,20 @@ import {
   type Difficulty,
 } from './game';
 
-export function dueDaysForHabit(habit: Habit, today: string, lookback = 7): string[] {
-  const createdKey = toDateKey(habit.createdAt);
-  const days: string[] = [];
-  for (let i = 1; i <= lookback; i++) {
-    const day = addDays(today, -i);
-    if (day >= createdKey) days.push(day);
-  }
-  return days;
-}
-
 export function checkedDaysOf(checkinsOfHabit: { day: string }[]): string[] {
   return checkinsOfHabit.map((c) => c.day);
 }
 
 export interface HabitStats {
   streak: number;
-  missedDays: number;
   totalCompletions: number;
-  lives: number;
 }
 
 export function computeHabitStats(habit: Habit, days: string[], today: string): HabitStats {
   const streak = computeStreak(days, today);
-  const due = dueDaysForHabit(habit, today, 7);
-  const missedDays = computeMissedDays(days, due);
-  const lives = Math.max(0, 5 - missedDays);
   return {
     streak,
-    missedDays,
     totalCompletions: days.length,
-    lives,
   };
 }
 
@@ -62,7 +44,6 @@ export interface ApplyCheckinResult {
   levelUp: boolean;
   newLevel: number;
   unlocked: AchievementDef[];
-  lives: number;
   streak: number;
 }
 
@@ -91,10 +72,6 @@ export async function applyCheckin(
   const newXp = user.xp + xpGained;
   const afterLevel = levelFromXp(newXp);
 
-  const due = dueDaysForHabit(habit, today, 7);
-  const missedDays = computeMissedDays(newDays, due);
-  const lives = Math.max(0, 5 - missedDays);
-
   await db.batch([
     db.insert(checkins).values({ habitId: habit.id, userId: user.id, day: today }),
     db
@@ -104,7 +81,7 @@ export async function applyCheckin(
         streakBest: Math.max(habit.streakBest, streak),
       })
       .where(eq(habits.id, habit.id)),
-    db.update(users).set({ xp: newXp, lives }).where(eq(users.id, user.id)),
+    db.update(users).set({ xp: newXp }).where(eq(users.id, user.id)),
   ]);
 
   const unlocked = await unlockAchievements(db, user.id, {
@@ -119,7 +96,6 @@ export async function applyCheckin(
     levelUp: afterLevel > beforeLevel,
     newLevel: afterLevel,
     unlocked,
-    lives,
     streak,
   };
 }
@@ -140,10 +116,6 @@ export async function removeCheckin(
   const xpLost = xpForDifficulty(habit.difficulty as Difficulty) + streakBonus(streak + 1);
   const newXp = Math.max(0, user.xp - xpLost);
 
-  const due = dueDaysForHabit(habit, today, 7);
-  const missedDays = computeMissedDays(newDays, due);
-  const lives = Math.max(0, 5 - missedDays);
-
   await db.batch([
     db
       .delete(checkins)
@@ -152,7 +124,7 @@ export async function removeCheckin(
       .update(habits)
       .set({ totalCompletions: Math.max(0, habit.totalCompletions - 1) })
       .where(eq(habits.id, habit.id)),
-    db.update(users).set({ xp: newXp, lives }).where(eq(users.id, user.id)),
+    db.update(users).set({ xp: newXp }).where(eq(users.id, user.id)),
   ]);
 }
 

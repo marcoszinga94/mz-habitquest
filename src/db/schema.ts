@@ -20,7 +20,6 @@ export const users = pgTable('users', {
   avatarEmoji: varchar('avatar_emoji', { length: 8 }).notNull().default('🧙'),
   avatarPhoto: text('avatar_photo'),
   xp: integer('xp').notNull().default(0),
-  lives: integer('lives').notNull().default(5),
   lang: varchar('lang', { length: 2 }).notNull().default('es'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });

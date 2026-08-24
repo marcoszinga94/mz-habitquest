@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Heart, ImagePlus, KeyRound, Trash2, Zap } from 'lucide-react';
+import { ImagePlus, KeyRound, Trash2, Zap } from 'lucide-react';
 import { api, type DashboardData } from '../lib/api';
 import { useI18n, type Lang } from '../lib/i18n';
 
@@ -132,9 +132,6 @@ export function ProfileView({
           <div className="flex items-center gap-3 mt-1 text-sm">
             <span className="inline-flex items-center gap-1 text-amber-300">
               <Zap size={14} /> {user.xp} {t('dashboard.xp')}
-            </span>
-            <span className="inline-flex items-center gap-1 text-red-300">
-              <Heart size={14} /> {user.lives}/5
             </span>
           </div>
           <div className="mt-2">

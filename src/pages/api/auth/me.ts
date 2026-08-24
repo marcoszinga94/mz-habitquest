@@ -29,7 +29,7 @@ const patchSchema = z
     message: 'password_pair',
   });
 
-function publicUser(user: { id: string; email: string; username: string; avatarEmoji: string; avatarPhoto: string | null; xp: number; lives: number; lang: string }) {
+function publicUser(user: { id: string; email: string; username: string; avatarEmoji: string; avatarPhoto: string | null; xp: number; lang: string }) {
   return {
     id: user.id,
     email: user.email,
@@ -37,7 +37,6 @@ function publicUser(user: { id: string; email: string; username: string; avatarE
     avatarEmoji: user.avatarEmoji,
     avatarPhoto: user.avatarPhoto,
     xp: user.xp,
-    lives: user.lives,
     lang: user.lang,
     ...levelProgress(user.xp),
   };

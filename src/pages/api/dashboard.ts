@@ -53,7 +53,6 @@ export const GET: APIRoute = async ({ request }) => {
       streak: stats.streak,
       streakBest: Math.max(h.streakBest, stats.streak),
       totalCompletions: h.totalCompletions,
-      lives: stats.lives,
       createdAt: h.createdAt,
     };
   });
@@ -102,7 +101,6 @@ export const GET: APIRoute = async ({ request }) => {
       avatarEmoji: user.avatarEmoji,
       avatarPhoto: user.avatarPhoto,
       xp: user.xp,
-      lives: user.lives,
       lang: user.lang,
       ...levelProgress(user.xp),
     },

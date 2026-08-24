@@ -1,4 +1,4 @@
-import { Flame, Heart, Swords, Zap } from 'lucide-react';
+import { Flame, Swords, Zap } from 'lucide-react';
 import type { DashboardData, HabitData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
 
@@ -38,9 +38,6 @@ export function DashboardView({
           <div className="flex items-center gap-3 mt-1 text-sm text-slate-400">
             <span className="inline-flex items-center gap-1 text-amber-300">
               <Zap size={14} /> {user.xp} {t('dashboard.xp')}
-            </span>
-            <span className="inline-flex items-center gap-1 text-red-300">
-              <Heart size={14} /> {user.lives}/5
             </span>
             <span className="inline-flex items-center gap-1 text-orange-300">
               <Flame size={14} /> {t('dashboard.bestStreak')}: {Math.max(...data.habits.map((h) => h.streak), 0)}
@@ -100,9 +97,6 @@ export function DashboardView({
                   <div className="text-[11px] text-slate-400 flex items-center gap-2">
                     <span className="inline-flex items-center gap-0.5">
                       <Flame size={11} /> {h.streak}
-                    </span>
-                    <span className="inline-flex items-center gap-0.5">
-                      <Heart size={11} /> {h.lives}/5
                     </span>
                   </div>
                 </div>

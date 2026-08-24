@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Flame, Heart, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Flame, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { api, type DashboardData, type HabitData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
 
@@ -53,7 +53,6 @@ export function HabitsView({
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-400">
                 <span className="inline-flex items-center gap-1 text-orange-300"><Flame size={13} /> {h.streak}</span>
-                <span className="inline-flex items-center gap-1 text-red-300"><Heart size={13} /> {h.lives}/5</span>
                 <span>{h.totalCompletions} {t('habits.done')}</span>
                 <span className="ml-auto text-indigo-300 font-semibold">
                   {h.streakBest} 🔥 {t('habits.best')}

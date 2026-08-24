@@ -7,7 +7,6 @@ export const XP_BY_DIFFICULTY: Record<Difficulty, number> = {
   hard: 30,
 };
 
-export const MAX_LIVES = 5;
 export const STREAK_MILESTONE = 7;
 export const STREAK_BONUS = 5;
 
@@ -77,15 +76,6 @@ export function computeStreak(checkedDays: string[], today: string): number {
     cursor = addDays(cursor, -1);
   }
   return streak;
-}
-
-/**
- * Días "fallados": días que debían completarse (dueDays) sin check-in.
- * `dueDays` ya debe venir filtrado a la ventana relevante (pasado reciente).
- */
-export function computeMissedDays(checkedDays: string[], dueDays: string[]): number {
-  const checked = new Set(checkedDays);
-  return dueDays.filter((d) => !checked.has(d)).length;
 }
 
 /** Días con check-in dentro de una ventana (para progreso de retos). */

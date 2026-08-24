@@ -32,7 +32,6 @@ export interface UserData {
   avatarEmoji: string;
   avatarPhoto: string | null;
   xp: number;
-  lives: number;
   lang: string;
   level: number;
   progress: number;
@@ -53,7 +52,6 @@ export interface HabitData {
   streak: number;
   streakBest: number;
   totalCompletions: number;
-  lives: number;
   createdAt: string;
 }
 
@@ -111,6 +109,5 @@ export interface CheckinResult {
   levelUp: boolean;
   newLevel: number;
   unlocked: { key: string }[];
-  lives: number;
   streak: number;
 }

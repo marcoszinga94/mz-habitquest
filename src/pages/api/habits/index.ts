@@ -56,7 +56,6 @@ export const GET: APIRoute = async ({ request }) => {
       streak: stats.streak,
       streakBest: Math.max(h.streakBest, stats.streak),
       totalCompletions: h.totalCompletions,
-      lives: stats.lives,
       createdAt: h.createdAt,
     };
   });
