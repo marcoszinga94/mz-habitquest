@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  --color-abyss: #0b0e1a;
+  --color-panel: #151a2e;
+  --color-panel-2: #1e2540;
+  --color-arcane: #8b5cf6;
+  --color-emerald-glow: #34d399;
+  --color-gold: #fbbf24;
+  --color-danger: #f87171;
+}
+
+html,
+body {
+  background-color: var(--color-abyss);
+  color: #e5e7eb;
+  font-family: var(--font-sans);
+}
+
+.panel {
+  background: linear-gradient(160deg, var(--color-panel), var(--color-panel-2));
+  border: 2px solid #2a3354;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+.btn {
+  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  font-weight: 700;
+  transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.12s ease;
+  cursor: pointer;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn-primary {
+  background: linear-gradient(160deg, #7c3aed, #6d28d9);
+  border-color: #a78bfa;
+  box-shadow: 0 3px 0 #4c1d95;
+  color: #f5f3ff;
+}
+.btn-primary:hover {
+  background: linear-gradient(160deg, #8b5cf6, #7c3aed);
+}
+.btn-gold {
+  background: linear-gradient(160deg, #f59e0b, #d97706);
+  border-color: #fcd34d;
+  box-shadow: 0 3px 0 #92400e;
+  color: #1c1917;
+}
+.btn-ghost {
+  background: #1e2540;
+  border-color: #37415f;
+  color: #d1d5db;
+}
+.btn-ghost:hover {
+  background: #283150;
+}
+.btn-danger {
+  background: #b91c1c;
+  border-color: #f87171;
+  color: #fee2e2;
+}
+
+.input {
+  background: #0d1122;
+  border: 2px solid #2a3354;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: #e5e7eb;
+  width: 100%;
+  outline: none;
+}
+.input:focus {
+  border-color: var(--color-arcane);
+}
+
+.bar-track {
+  background: #0d1122;
+  border: 2px solid #2a3354;
+  border-radius: 999px;
+  overflow: hidden;
+  height: 0.75rem;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+  transition: width 0.4s ease;
+}
+.bar-fill-gold {
+  background: linear-gradient(90deg, #fcd34d, #f59e0b);
+}
+
+/* Nivel: pulso sutil en el avatar */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(139, 92, 246, 0); }
+}
+.avatar-glow {
+  animation: glowPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in {
+  animation: slideUp 0.25s ease;
+}

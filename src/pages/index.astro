@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getSessionToken, verifySessionToken } from '../lib/auth';
+import { getDb } from '../db';
+import { users } from '../db/schema';
+import { eq } from 'drizzle-orm';
+import { levelProgress } from '../lib/game';
+
+const token = getSessionToken(Astro.request);
+const session = token ? await verifySessionToken(token) : null;
+let authed = false;
+if (session) {
+  const db = getDb();
+  const rows = await db.select().from(users).where(eq(users.id, session.userId));
+  authed = rows.length > 0;
+}
+if (authed) return Astro.redirect('/app');
+---
+
+<Layout title="HabitQuest — Hábitos RPG">
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+    <div class="text-6xl mb-4">⚔️</div>
+    <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-emerald-300 mb-3">
+      HabitQuest
+    </h1>
+    <p class="text-slate-300 max-w-md mb-8">
+      Convierte tus hábitos en una aventura RPG. Sube de nivel, desbloquea logros
+      y reta a tus amigos con apuestas que se cumplen de verdad.
+    </p>
+    <div class="flex gap-3">
+      <a href="/register" class="btn btn-gold px-6 py-3 text-lg">⚔️ Comenzar</a>
+      <a href="/login" class="btn btn-ghost px-6 py-3 text-lg">Entrar</a>
+    </div>
+    <div class="mt-12 grid sm:grid-cols-3 gap-4 max-w-2xl">
+      <div class="panel p-4">
+        <div class="text-3xl mb-1">📈</div>
+        <div class="font-bold">Hábitos + XP</div>
+        <div class="text-sm text-slate-400">Gana experiencia por cada misión completada.</div>
+      </div>
+      <div class="panel p-4">
+        <div class="text-3xl mb-1">⚔️</div>
+        <div class="font-bold">Retos con amigos</div>
+        <div class="text-sm text-slate-400">Comparte un código y compite por una apuesta real.</div>
+      </div>
+      <div class="panel p-4">
+        <div class="text-3xl mb-1">🏆</div>
+        <div class="font-bold">Logros</div>
+        <div class="text-sm text-slate-400">Desbloquea insignias con tus rachas y niveles.</div>
+      </div>
+    </div>
+  </div>
+</Layout>

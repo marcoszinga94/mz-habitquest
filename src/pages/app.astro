@@ -1,0 +1,8 @@
+---
+import Layout from '../layouts/Layout.astro';
+import App from '../components/app/App';
+---
+
+<Layout title="HabitQuest">
+  <App client:only="react" />
+</Layout>

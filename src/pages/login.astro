@@ -1,0 +1,8 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { AuthPage } from '../components/AuthPage';
+---
+
+<Layout title="Iniciar sesión · HabitQuest">
+  <AuthPage client:load mode="login" />
+</Layout>
