@@ -205,8 +205,8 @@ function AppInner({ view }: { view: View }) {
   const unread = data.stats.unreadNotifications;
 
   return (
-    <div className="min-h-screen lg:flex lg:items-start lg:justify-center lg:max-w-7xl lg:mx-auto lg:px-6">
-      <aside className="hidden lg:flex lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:flex-col lg:py-6 lg:mr-6 lg:bg-[#151027]/50 lg:backdrop-blur-md lg:border-r lg:border-slate-800">
+    <div className="min-h-screen lg:flex">
+      <aside className="hidden lg:flex lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:flex-col lg:py-6 lg:mr-8 lg:bg-[#151027]/50 lg:backdrop-blur-md lg:border-r lg:border-slate-800">
         <button type="button" onClick={() => navigate('dashboard')} className="flex items-center gap-3 px-3 mb-8 text-left">
           <div className="text-3xl sword-glow">⚔️</div>
           <h1 className="text-2xl font-extrabold tracking-tight gold-text">{t('app.title')}</h1>
@@ -300,9 +300,9 @@ function AppInner({ view }: { view: View }) {
 
       <main className="mt-5">
         {currentView === 'dashboard' && (
-          <DashboardView data={data} onCheckin={handleCheckin} onReminders={askReminders} notifPermission={notifPermission} onNavigate={navigate} />
+          <DashboardView data={data} onCheckin={handleCheckin} onReminders={askReminders} notifPermission={notifPermission} onNavigate={navigate} pushToast={pushToast} />
         )}
-        {currentView === 'habits' && <HabitsView data={data} onCheckin={handleCheckin} onSaved={handleHabitSaved} />}
+        {currentView === 'habits' && <HabitsView data={data} onCheckin={handleCheckin} onSaved={handleHabitSaved} pushToast={pushToast} />}
         {currentView === 'retos' && (
           <RetosView
             data={data}

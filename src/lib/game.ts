@@ -8,6 +8,23 @@ export function xpForCheckin(streak: number): number {
   return BASE_XP + Math.max(0, streak - 1) * STREAK_XP_PER_DAY;
 }
 
+/**
+ * XP total que aportó un hábito según sus días de check-in.
+ * Reproduce la secuencia de rachas para sumar cada premio otorgado.
+ */
+export function xpFromCheckinDays(days: string[]): number {
+  const sorted = [...days].sort();
+  let total = 0;
+  let streak = 0;
+  let prev: string | null = null;
+  for (const d of sorted) {
+    streak = prev && addDays(prev, 1) === d ? streak + 1 : 1;
+    total += xpForCheckin(streak);
+    prev = d;
+  }
+  return total;
+}
+
 /** XP total necesario para alcanzar un nivel dado (nivel 1 = 0 XP). */
 export function xpForLevel(level: number): number {
   let total = 0;

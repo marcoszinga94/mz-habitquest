@@ -1,25 +1,38 @@
 import { ChevronRight, Flame, Swords, Zap } from 'lucide-react';
 import type { DashboardData, HabitData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
-import { isScheduledOn } from '../../../lib/game';
+import { isScheduledOn, parseScheduleDays } from '../../../lib/game';
 
 export function DashboardView({
   data,
   onCheckin,
   onReminders,
   onNavigate,
+  pushToast,
   notifPermission,
 }: {
   data: DashboardData;
   onCheckin: (habit: HabitData) => void;
   onReminders: () => void;
   onNavigate: (view: 'habits' | 'retos') => void;
+  pushToast: (t: { title: string; body?: string }) => void;
   notifPermission: NotificationPermission;
 }) {
   const { t } = useI18n();
   const { user } = data;
   const xpToNext = user.nextLevelXp - user.currentLevelXp;
   const pct = Math.round(user.progress * 100);
+
+  const scheduledToday = (h: HabitData) => isScheduledOn(h.scheduleDays, new Date());
+
+  const scheduleText = (h: HabitData) => {
+    const days = parseScheduleDays(h.scheduleDays);
+    if (days.size >= 7) return t('habits.daily');
+    return [0, 1, 2, 3, 4, 5, 6]
+      .filter((d) => days.has(d))
+      .map((d) => t(`days.${d}`))
+      .join(' · ');
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -103,11 +116,10 @@ export function DashboardView({
                   </div>
                 </div>
                 <button
-                  onClick={() => onCheckin(h)}
-                  disabled={h.checkedToday || !isScheduledOn(h.scheduleDays, new Date())}
-                  className={`relative z-10 btn px-3 py-1.5 text-sm ${h.checkedToday ? 'btn-gold opacity-70 pointer-events-none' : isScheduledOn(h.scheduleDays, new Date()) ? 'btn-primary' : 'btn-ghost opacity-50'}`}
+                  onClick={() => (scheduledToday(h) ? onCheckin(h) : pushToast({ title: t('habits.not_scheduled'), body: t('habits.off_schedule', { days: scheduleText(h) }) }))}
+                  className={`relative z-10 btn px-3 py-1.5 text-sm ${h.checkedToday ? 'btn-gold opacity-70 pointer-events-none' : scheduledToday(h) ? 'btn-primary' : 'btn-ghost'}`}
                 >
-                  {h.checkedToday ? t('habits.checked') : isScheduledOn(h.scheduleDays, new Date()) ? t('habits.check') : t('habits.not_scheduled')}
+                  {h.checkedToday ? t('habits.checked') : scheduledToday(h) ? t('habits.check') : `⚠️ ${t('habits.not_scheduled')}`}
                 </button>
               </div>
             ))}

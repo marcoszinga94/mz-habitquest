@@ -2,9 +2,9 @@ import type { APIRoute } from 'astro';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb } from '../../../db';
-import { habits } from '../../../db/schema';
+import { checkins, habits, users } from '../../../db/schema';
 import { apiError, json, requireUser } from '../../../lib/http';
-import { parseScheduleDays, scheduleToFrequency } from '../../../lib/game';
+import { parseScheduleDays, scheduleToFrequency, xpFromCheckinDays } from '../../../lib/game';
 
 const patchSchema = z
   .object({
@@ -55,7 +55,20 @@ export const DELETE: APIRoute = async ({ request, params }) => {
     .from(habits)
     .where(and(eq(habits.id, params.id ?? ''), eq(habits.userId, user.id)));
   if (existing.length === 0) return apiError(404, 'not_found');
+  const habit = existing[0];
 
-  await db.update(habits).set({ archived: true }).where(eq(habits.id, existing[0].id));
-  return json({ ok: true });
+  const days = await db
+    .select({ day: checkins.day })
+    .from(checkins)
+    .where(eq(checkins.habitId, habit.id));
+  const xpLost = xpFromCheckinDays(days.map((c) => c.day));
+
+  await db.batch([
+    db.update(habits).set({ archived: true }).where(eq(habits.id, habit.id)),
+    db
+      .update(users)
+      .set({ xp: Math.max(0, user.xp - xpLost) })
+      .where(eq(users.id, user.id)),
+  ]);
+  return json({ ok: true, xpLost });
 };

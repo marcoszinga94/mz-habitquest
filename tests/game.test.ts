@@ -14,6 +14,7 @@ import {
   scheduleToFrequency,
   xpForCheckin,
   xpForLevel,
+  xpFromCheckinDays,
 } from '../src/lib/game';
 
 describe('niveles y XP', () => {
@@ -44,6 +45,12 @@ describe('niveles y XP', () => {
     expect(xpForCheckin(2)).toBe(12);
     expect(xpForCheckin(7)).toBe(22);
     expect(xpForCheckin(30)).toBe(68);
+  });
+
+  it('xpFromCheckinDays reproduce el XP aportado por un hábito', () => {
+    expect(xpFromCheckinDays(['2026-08-22', '2026-08-23', '2026-08-24'])).toBe(36); // 10+12+14
+    expect(xpFromCheckinDays(['2026-08-22', '2026-08-24'])).toBe(20); // hueco reinicia la racha
+    expect(xpFromCheckinDays([])).toBe(0);
   });
 });
 

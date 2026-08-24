@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { and, desc, eq, gte } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { getDb } from '../../db';
 import { achievements, checkins, habits, notifications, retoCheckins, retoParticipants, retos } from '../../db/schema';
 import { json, requireUser } from '../../lib/http';
-import { ACHIEVEMENTS, addDays, levelProgress, toDateKey } from '../../lib/game';
+import { ACHIEVEMENTS, levelProgress, toDateKey, xpFromCheckinDays } from '../../lib/game';
 import { computeHabitStats } from '../../lib/engine';
 import { finishExpiredRetosForUser } from '../../lib/retos';
 
@@ -14,11 +14,10 @@ export const GET: APIRoute = async ({ request }) => {
   await finishExpiredRetosForUser(db, user.id);
 
   const today = toDateKey(new Date());
-  const since = addDays(today, -45);
 
   const [habitRows, checkinRows, achRows, notifRows, retoRows, participantRows, retoCheckinRows] = await Promise.all([
     db.select().from(habits).where(and(eq(habits.userId, user.id), eq(habits.archived, false))),
-    db.select().from(checkins).where(and(eq(checkins.userId, user.id), gte(checkins.day, since))),
+    db.select().from(checkins).where(eq(checkins.userId, user.id)),
     db.select().from(achievements).where(eq(achievements.userId, user.id)),
     db
       .select()
@@ -54,6 +53,7 @@ export const GET: APIRoute = async ({ request }) => {
       streak: stats.streak,
       streakBest: Math.max(h.streakBest, stats.streak),
       totalCompletions: h.totalCompletions,
+      xpContributed: xpFromCheckinDays(days),
       createdAt: h.createdAt,
     };
   });

@@ -52,6 +52,7 @@ export interface HabitData {
   streak: number;
   streakBest: number;
   totalCompletions: number;
+  xpContributed: number;
   createdAt: string;
 }
 

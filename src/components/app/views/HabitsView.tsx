@@ -9,17 +9,23 @@ export function HabitsView({
   data,
   onCheckin,
   onSaved,
+  pushToast,
 }: {
   data: DashboardData;
   onCheckin: (habit: HabitData) => void;
   onSaved: () => void;
+  pushToast: (t: { title: string; body?: string }) => void;
 }) {
   const { t } = useI18n();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<HabitData | null>(null);
+  const [deleting, setDeleting] = useState<HabitData | null>(null);
 
   const remove = async (habit: HabitData) => {
-    await api(`/api/habits/${habit.id}`, { method: 'DELETE' });
+    const res = await api<{ ok: boolean; xpLost?: number }>(`/api/habits/${habit.id}`, { method: 'DELETE' });
+    if (res.xpLost) pushToast({ title: t('habits.deleted'), body: t('habits.delete.xp_lost', { xp: res.xpLost }) });
+    else pushToast({ title: t('habits.deleted') });
+    setDeleting(null);
     onSaved();
   };
 
@@ -61,7 +67,7 @@ export function HabitsView({
                 <button className="btn btn-ghost p-1.5" onClick={() => { setEditing(h); setFormOpen(true); }} aria-label={t('form.edit')}>
                   <Pencil size={14} />
                 </button>
-                <button className="btn btn-ghost p-1.5" onClick={() => remove(h)} aria-label={t('form.delete')}>
+                <button className="btn btn-ghost p-1.5" onClick={() => setDeleting(h)} aria-label={t('form.delete')}>
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -72,12 +78,16 @@ export function HabitsView({
                   {h.streakBest} 🔥 {t('habits.best')}
                 </span>
               </div>
+              {!isToday(h) && (
+                <div className="text-[11px] font-bold text-amber-400/90 flex items-center gap-1">
+                  ⚠️ {t('habits.off_schedule', { days: scheduleLabel(h) })}
+                </div>
+              )}
               <button
-                onClick={() => onCheckin(h)}
-                disabled={h.checkedToday || !isToday(h)}
-                className={`btn py-2 text-sm ${h.checkedToday ? 'btn-gold opacity-70' : isToday(h) ? 'btn-primary' : 'btn-ghost opacity-50'}`}
+                onClick={() => (isToday(h) ? onCheckin(h) : pushToast({ title: t('habits.not_scheduled'), body: t('habits.off_schedule', { days: scheduleLabel(h) }) }))}
+                className={`btn py-2 text-sm ${h.checkedToday ? 'btn-gold opacity-70 pointer-events-none' : isToday(h) ? 'btn-primary' : 'btn-ghost'}`}
               >
-                {h.checkedToday ? t('habits.checked') : isToday(h) ? t('habits.check') : t('habits.not_scheduled')}
+                {h.checkedToday ? t('habits.checked') : isToday(h) ? t('habits.check') : `⚠️ ${t('habits.not_scheduled')}`}
               </button>
             </div>
           ))}
@@ -85,6 +95,7 @@ export function HabitsView({
       )}
 
       {formOpen && <HabitFormModal editing={editing} onClose={() => setFormOpen(false)} onSaved={() => { setFormOpen(false); onSaved(); }} />}
+      {deleting && <DeleteHabitModal habit={deleting} onClose={() => setDeleting(null)} onConfirm={() => remove(deleting)} />}
     </div>
   );
 }
@@ -172,6 +183,39 @@ function HabitFormModal({
         <div className="flex gap-2 mt-1">
           <button className="btn btn-primary flex-1 py-2" onClick={submit}>
             {editing ? t('form.save') : t('form.create')}
+          </button>
+          <button className="btn btn-ghost px-4 py-2" onClick={onClose}>
+            {t('form.cancel')}
+          </button>
+        </div>
+      </div>
+    </ModalShell>
+  );
+}
+
+function DeleteHabitModal({
+  habit,
+  onClose,
+  onConfirm,
+}: {
+  habit: HabitData;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const { t } = useI18n();
+  return (
+    <ModalShell title={t('habits.delete.title')} onClose={onClose}>
+      <div className="flex flex-col gap-3 text-center">
+        <div className="text-5xl">🗡️</div>
+        <p className="text-sm text-slate-300">{t('habits.delete.hint', { name: habit.name })}</p>
+        <div className="rounded-lg border-2 border-red-500/60 bg-red-950/40 p-3 flex items-center justify-center gap-2">
+          <span className="text-xl">⚠️</span>
+          <span className="font-bold text-red-300">{t('habits.delete.xp', { xp: habit.xpContributed })}</span>
+        </div>
+        <p className="text-[11px] text-slate-500">{t('habits.delete.irreversible')}</p>
+        <div className="flex gap-2">
+          <button className="btn btn-danger flex-1 py-2" onClick={onConfirm}>
+            {t('habits.delete.confirm')}
           </button>
           <button className="btn btn-ghost px-4 py-2" onClick={onClose}>
             {t('form.cancel')}
