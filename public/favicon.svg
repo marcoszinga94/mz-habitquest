@@ -4,20 +4,43 @@
       <stop offset="0" stop-color="#fde68a" />
       <stop offset="1" stop-color="#e8920c" />
     </linearGradient>
+    <linearGradient id="flameOuter" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#ffd166" />
+      <stop offset="0.5" stop-color="#fb923c" />
+      <stop offset="1" stop-color="#ea580c" />
+    </linearGradient>
+    <linearGradient id="flameInner" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#fff7d6" />
+      <stop offset="0.55" stop-color="#ffd166" />
+      <stop offset="1" stop-color="#fb923c" />
+    </linearGradient>
   </defs>
   <rect width="512" height="512" fill="#151027" />
-  <g fill="url(#gold)" stroke="#7a5200" stroke-width="6" stroke-linejoin="round">
-    <g transform="rotate(45 256 256)">
-      <polygon points="256,128 280,220 288,242 224,242 232,220" />
-      <rect x="216" y="242" width="80" height="14" rx="5" />
-      <rect x="248" y="256" width="16" height="30" rx="3" />
-      <circle cx="256" cy="298" r="13" />
+
+  <!-- Espadas cruzadas (detrás del fuego) -->
+  <g fill="url(#gold)" stroke="#7a5200" stroke-width="5" stroke-linejoin="round">
+    <g transform="rotate(45 256 330)">
+      <polygon points="0,-118 26,-22 34,2 -34,2 -26,-22" />
+      <rect x="-42" y="2" width="84" height="13" rx="5" />
+      <rect x="-8" y="15" width="16" height="26" rx="3" />
+      <circle cy="50" r="11" />
     </g>
-    <g transform="rotate(-45 256 256)">
-      <polygon points="256,128 280,220 288,242 224,242 232,220" />
-      <rect x="216" y="242" width="80" height="14" rx="5" />
-      <rect x="248" y="256" width="16" height="30" rx="3" />
-      <circle cx="256" cy="298" r="13" />
+    <g transform="rotate(-45 256 330)">
+      <polygon points="0,-118 26,-22 34,2 -34,2 -26,-22" />
+      <rect x="-42" y="2" width="84" height="13" rx="5" />
+      <rect x="-8" y="15" width="16" height="26" rx="3" />
+      <circle cy="50" r="11" />
     </g>
   </g>
+
+  <!-- Leños -->
+  <g>
+    <rect x="186" y="392" width="140" height="18" rx="9" fill="#5b3a1e" />
+    <rect x="186" y="384" width="140" height="18" rx="9" fill="#6b4423" transform="rotate(-8 256 393)" />
+    <rect x="186" y="384" width="140" height="18" rx="9" fill="#4e3018" transform="rotate(8 256 393)" />
+  </g>
+
+  <!-- Llama -->
+  <path d="M256,172 C278,228 324,258 324,304 C324,336 298,352 256,360 C214,352 188,336 188,304 C188,258 234,228 256,172 Z" fill="url(#flameOuter)" />
+  <path d="M256,224 C270,256 296,274 296,304 C296,326 278,338 256,344 C234,338 216,326 216,304 C216,274 242,256 256,224 Z" fill="url(#flameInner)" />
 </svg>
