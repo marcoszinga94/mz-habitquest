@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Copy, Plus, Swords, Users, Check, Flag, LogIn } from 'lucide-react';
+import { useState } from 'react';
+import { Copy, Plus, Swords, Users, Check, Flag, LogIn, Trash2 } from 'lucide-react';
 import { api, type DashboardData, type RetoData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
 import { ModalShell } from './HabitsView';
@@ -80,6 +80,7 @@ function RetoCard({
 }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const pct = Math.min(100, Math.round((reto.myProgress / reto.goalTarget) * 100));
   const isWinner = reto.winnerId === me;
   const settled = reto.prizeFulfilled && reto.prizeConfirmed;
@@ -100,6 +101,12 @@ function RetoCard({
     onUpdated();
   };
 
+  const remove = async () => {
+    await api(`/api/retos/${reto.id}`, { method: 'DELETE' });
+    onToast({ title: t('retos.deleted') });
+    onUpdated();
+  };
+
   const ends = new Date(reto.endsAt).toLocaleDateString();
 
   return (
@@ -115,6 +122,16 @@ function RetoCard({
         <span className={`text-xs font-bold px-2 py-1 rounded-full ${reto.status === 'active' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'}`}>
           {reto.status === 'active' ? t('retos.active') : t('retos.finished')}
         </span>
+        {reto.status === 'finished' && reto.isCreator && (
+          <button
+            onClick={() => (confirmDelete ? remove() : setConfirmDelete(true))}
+            onBlur={() => window.setTimeout(() => setConfirmDelete(false), 1500)}
+            className={`btn ${confirmDelete ? 'btn-danger' : 'btn-ghost'} p-1.5`}
+            aria-label={t('retos.delete')}
+          >
+            {confirmDelete ? <span className="px-1 text-xs">{t('retos.deleteConfirm')}</span> : <Trash2 size={14} />}
+          </button>
+        )}
       </div>
 
       {reto.description && <div className="text-sm text-slate-400">{reto.description}</div>}
