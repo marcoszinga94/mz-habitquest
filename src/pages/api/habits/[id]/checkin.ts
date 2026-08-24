@@ -4,7 +4,7 @@ import { getDb } from '../../../../db';
 import { habits } from '../../../../db/schema';
 import { apiError, json, requireUser } from '../../../../lib/http';
 import { applyCheckin, CheckinError } from '../../../../lib/engine';
-import { toDateKey } from '../../../../lib/game';
+import { isScheduledOn, toDateKey } from '../../../../lib/game';
 
 export const POST: APIRoute = async ({ request, params }) => {
   const user = await requireUser(request);
@@ -17,6 +17,9 @@ export const POST: APIRoute = async ({ request, params }) => {
   const habit = existing[0];
 
   const today = toDateKey(new Date());
+  if (!isScheduledOn(habit.scheduleDays, new Date())) {
+    return apiError(422, 'not_scheduled');
+  }
   try {
     const result = await applyCheckin(db, user, habit, today);
     return json({ result });

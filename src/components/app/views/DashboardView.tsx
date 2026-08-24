@@ -1,6 +1,7 @@
 import { ChevronRight, Flame, Swords, Zap } from 'lucide-react';
 import type { DashboardData, HabitData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
+import { isScheduledOn } from '../../../lib/game';
 
 export function DashboardView({
   data,
@@ -103,10 +104,10 @@ export function DashboardView({
                 </div>
                 <button
                   onClick={() => onCheckin(h)}
-                  disabled={h.checkedToday}
-                  className={`relative z-10 btn px-3 py-1.5 text-sm ${h.checkedToday ? 'btn-gold opacity-70 pointer-events-none' : 'btn-primary'}`}
+                  disabled={h.checkedToday || !isScheduledOn(h.scheduleDays, new Date())}
+                  className={`relative z-10 btn px-3 py-1.5 text-sm ${h.checkedToday ? 'btn-gold opacity-70 pointer-events-none' : isScheduledOn(h.scheduleDays, new Date()) ? 'btn-primary' : 'btn-ghost opacity-50'}`}
                 >
-                  {h.checkedToday ? t('habits.checked') : t('habits.check')}
+                  {h.checkedToday ? t('habits.checked') : isScheduledOn(h.scheduleDays, new Date()) ? t('habits.check') : t('habits.not_scheduled')}
                 </button>
               </div>
             ))}

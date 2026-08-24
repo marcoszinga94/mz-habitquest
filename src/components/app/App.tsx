@@ -154,24 +154,29 @@ function AppInner({ view }: { view: View }) {
 
   const handleCheckin = useCallback(
     async (habit: HabitData) => {
-      const res = await api<{ result?: CheckinResult }>(
-        `/api/habits/${habit.id}/checkin`,
-        { method: 'POST' },
-      );
-      const r = res.result;
-      if (r) {
-        pushToast({
-          icon: 'xp',
-          title: t('toast.xp', { xp: r.xpGained }),
-          body: r.levelUp ? t('habits.level_up', { level: r.newLevel }) : undefined,
-        });
-        if (r.unlocked.length > 0) {
-          for (const d of r.unlocked) {
-            pushToast({ icon: 'achievement', title: t(d.nameKey), body: `+${d.xp} XP` });
+      try {
+        const res = await api<{ result?: CheckinResult }>(
+          `/api/habits/${habit.id}/checkin`,
+          { method: 'POST' },
+        );
+        const r = res.result;
+        if (r) {
+          pushToast({
+            icon: 'xp',
+            title: t('toast.xp', { xp: r.xpGained }),
+            body: r.levelUp ? t('habits.level_up', { level: r.newLevel }) : undefined,
+          });
+          if (r.unlocked.length > 0) {
+            for (const d of r.unlocked) {
+              pushToast({ icon: 'achievement', title: t(d.nameKey), body: `+${d.xp} XP` });
+            }
           }
         }
+        await load();
+      } catch (e: any) {
+        pushToast({ title: e?.message === 'not_scheduled' ? t('habits.not_scheduled') : t('common.error'), body: e?.message ?? '' });
+        await load();
       }
-      await load();
     },
     [load, t, pushToast],
   );

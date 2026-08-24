@@ -16,13 +16,13 @@ export function EmojiPicker({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <div className="grid grid-cols-8 gap-1.5">
+      <div className="grid grid-cols-8 gap-1">
         {EMOJIS.map((e) => (
           <button
             key={e}
             type="button"
             aria-label={e}
-            className={`text-xl rounded-lg py-1.5 ${e === value ? 'bg-indigo-600 ring-2 ring-amber-300' : 'hover:bg-slate-800'}`}
+            className={`text-lg rounded-md py-1 ${e === value ? 'bg-indigo-600 ring-2 ring-amber-300' : 'hover:bg-slate-800'}`}
             onClick={() => onChange(e)}
           >
             {e}
@@ -30,7 +30,7 @@ export function EmojiPicker({
         ))}
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-2xl">{value}</span>
+        <span className="text-xl">{value}</span>
         <input
           className="input text-center text-lg"
           value={value}

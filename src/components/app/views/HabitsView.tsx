@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Bell, Flame, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { api, type DashboardData, type HabitData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
-import { parseScheduleDays } from '../../../lib/game';
+import { isScheduledOn, parseScheduleDays } from '../../../lib/game';
 import { EmojiPicker } from '../EmojiPicker';
 
 export function HabitsView({
@@ -31,6 +31,8 @@ export function HabitsView({
       .map((d) => t(`days.${d}`))
       .join(' · ');
   };
+
+  const isToday = (h: HabitData) => isScheduledOn(h.scheduleDays, new Date());
 
   return (
     <div className="flex flex-col gap-4">
@@ -72,10 +74,10 @@ export function HabitsView({
               </div>
               <button
                 onClick={() => onCheckin(h)}
-                disabled={h.checkedToday}
-                className={`btn py-2 text-sm ${h.checkedToday ? 'btn-gold opacity-70' : 'btn-primary'}`}
+                disabled={h.checkedToday || !isToday(h)}
+                className={`btn py-2 text-sm ${h.checkedToday ? 'btn-gold opacity-70' : isToday(h) ? 'btn-primary' : 'btn-ghost opacity-50'}`}
               >
-                {h.checkedToday ? t('habits.checked') : t('habits.check')}
+                {h.checkedToday ? t('habits.checked') : isToday(h) ? t('habits.check') : t('habits.not_scheduled')}
               </button>
             </div>
           ))}
@@ -184,17 +186,17 @@ export function ModalShell({ title, onClose, children }: { title: string; onClos
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
       <div
-        className="panel p-4 w-full max-w-md animate-in rounded-b-none sm:rounded-lg sm:mb-0 safe-bottom"
+        className="panel p-4 w-full max-w-md animate-in rounded-b-none sm:rounded-lg sm:mb-0 safe-bottom max-h-[92dvh] sm:max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-slate-600 sm:hidden" />
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 shrink-0">
           <h3 className="font-bold text-lg">{title}</h3>
           <button className="btn btn-ghost p-1.5" onClick={onClose} aria-label="close">
             <X size={16} />
           </button>
         </div>
-        {children}
+        <div className="overflow-y-auto min-h-0">{children}</div>
       </div>
     </div>
   );
