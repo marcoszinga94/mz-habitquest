@@ -1,14 +1,12 @@
-export type Difficulty = 'easy' | 'medium' | 'hard';
 export type Frequency = 'daily' | 'weekly';
 
-export const XP_BY_DIFFICULTY: Record<Difficulty, number> = {
-  easy: 10,
-  medium: 20,
-  hard: 30,
-};
+export const BASE_XP = 10;
+export const STREAK_XP_PER_DAY = 2;
 
-export const STREAK_MILESTONE = 7;
-export const STREAK_BONUS = 5;
+/** XP por check-in: base 10 + 2 por cada día de racha adicional. */
+export function xpForCheckin(streak: number): number {
+  return BASE_XP + Math.max(0, streak - 1) * STREAK_XP_PER_DAY;
+}
 
 /** XP total necesario para alcanzar un nivel dado (nivel 1 = 0 XP). */
 export function xpForLevel(level: number): number {
@@ -39,14 +37,6 @@ export function levelProgress(xp: number): LevelProgress {
   const span = nextLevelXp - currentLevelXp;
   const progress = span > 0 ? (xp - currentLevelXp) / span : 1;
   return { level, currentLevelXp, nextLevelXp, progress: Math.max(0, Math.min(1, progress)) };
-}
-
-export function xpForDifficulty(difficulty: Difficulty): number {
-  return XP_BY_DIFFICULTY[difficulty] ?? XP_BY_DIFFICULTY.medium;
-}
-
-export function streakBonus(streak: number): number {
-  return Math.floor(streak / STREAK_MILESTONE) * STREAK_BONUS;
 }
 
 export function toDateKey(d: Date): string {

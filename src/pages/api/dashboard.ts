@@ -47,7 +47,6 @@ export const GET: APIRoute = async ({ request }) => {
       emoji: h.emoji,
       frequency: h.frequency,
       targetPerWeek: h.targetPerWeek,
-      difficulty: h.difficulty,
       reminderEnabled: h.reminderEnabled,
       reminderTime: h.reminderTime,
       checkedToday: days.includes(today),

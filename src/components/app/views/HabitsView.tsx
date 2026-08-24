@@ -41,7 +41,7 @@ export function HabitsView({
                 <div className="flex-1">
                   <div className="font-bold">{h.name}</div>
                   <div className="text-[11px] text-slate-400">
-                    {h.frequency === 'daily' ? t('habits.daily') : t('habits.weekly')} · {t('form.difficulty')}: {t(`form.difficulty.${h.difficulty}`)}
+                    {h.frequency === 'daily' ? t('habits.daily') : t('habits.weekly')}
                   </div>
                 </div>
                 <button className="btn btn-ghost p-1.5" onClick={() => { setEditing(h); setFormOpen(true); }} aria-label={t('form.edit')}>
@@ -89,13 +89,12 @@ function HabitFormModal({
   const [emoji, setEmoji] = useState(editing?.emoji ?? '⭐');
   const [frequency, setFrequency] = useState<'daily' | 'weekly'>(editing?.frequency ?? 'daily');
   const [target, setTarget] = useState(editing?.targetPerWeek ?? 7);
-  const [difficulty, setDifficulty] = useState<HabitData['difficulty']>(editing?.difficulty ?? 'medium');
   const [reminder, setReminder] = useState(editing?.reminderEnabled ?? false);
   const [reminderTime, setReminderTime] = useState(editing?.reminderTime ?? '09:00');
   const [error, setError] = useState('');
 
   const submit = async () => {
-    const body = { name, emoji, frequency, targetPerWeek: target, difficulty, reminderEnabled: reminder, reminderTime };
+    const body = { name, emoji, frequency, targetPerWeek: target, reminderEnabled: reminder, reminderTime };
     try {
       if (editing) {
         await api(`/api/habits/${editing.id}`, { method: 'PATCH', body: JSON.stringify(body) });
@@ -133,16 +132,6 @@ function HabitFormModal({
             <input type="range" min={1} max={7} value={target} onChange={(e) => setTarget(Number(e.target.value))} />
           </label>
         )}
-        <label className="flex flex-col gap-1 text-sm">
-          <span>{t('form.difficulty')}</span>
-          <div className="flex gap-2">
-            {(['easy', 'medium', 'hard'] as const).map((d) => (
-              <button key={d} className={`btn flex-1 py-2 text-sm ${difficulty === d ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setDifficulty(d)}>
-                {t(`form.difficulty.${d}`)}
-              </button>
-            ))}
-          </div>
-        </label>
         <div className="flex items-center justify-between text-sm">
           <span>{t('form.reminder')}</span>
           <input type="checkbox" checked={reminder} onChange={(e) => setReminder(e.target.checked)} className="w-5 h-5 accent-indigo-500" />

@@ -7,11 +7,9 @@ import {
   computeStreak,
   evaluateAchievements,
   levelFromXp,
-  streakBonus,
   toDateKey,
-  xpForDifficulty,
+  xpForCheckin,
   type AchievementDef,
-  type Difficulty,
 } from './game';
 
 export function checkedDaysOf(checkinsOfHabit: { day: string }[]): string[] {
@@ -66,7 +64,7 @@ export async function applyCheckin(
 
   const newDays = [...days, today];
   const streak = computeStreak(newDays, today);
-  const xpGained = xpForDifficulty(habit.difficulty as Difficulty) + streakBonus(streak);
+  const xpGained = xpForCheckin(streak);
 
   const beforeLevel = levelFromXp(user.xp);
   const newXp = user.xp + xpGained;

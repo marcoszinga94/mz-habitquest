@@ -35,7 +35,6 @@ export const habits = pgTable(
     emoji: varchar('emoji', { length: 8 }).notNull().default('⭐'),
     frequency: varchar('frequency', { length: 10 }).notNull().default('daily'), // daily | weekly
     targetPerWeek: integer('target_per_week').notNull().default(7),
-    difficulty: varchar('difficulty', { length: 10 }).notNull().default('medium'), // easy | medium | hard
     reminderEnabled: boolean('reminder_enabled').notNull().default(false),
     reminderTime: varchar('reminder_time', { length: 5 }).notNull().default('09:00'),
     streakBest: integer('streak_best').notNull().default(0),
@@ -151,11 +150,36 @@ export const notifications = pgTable('notifications', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const friendRequests = pgTable(
+  'friend_requests',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    fromUserId: uuid('from_user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    toUserId: uuid('to_user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    status: varchar('status', { length: 10 }).notNull().default('pending'), // pending | accepted
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('friend_requests_from_idx').on(t.fromUserId),
+    index('friend_requests_to_idx').on(t.toUserId),
+    uniqueIndex('friend_request_unique_idx').on(t.fromUserId, t.toUserId),
+  ],
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
   habits: many(habits),
   checkins: many(checkins),
   achievements: many(achievements),
   participants: many(retoParticipants),
+}));
+
+export const friendRequestsRelations = relations(friendRequests, ({ one }) => ({
+  fromUser: one(users, { fields: [friendRequests.fromUserId], references: [users.id] }),
+  toUser: one(users, { fields: [friendRequests.toUserId], references: [users.id] }),
 }));
 
 export const habitsRelations = relations(habits, ({ one, many }) => ({

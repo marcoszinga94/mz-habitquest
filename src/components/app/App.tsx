@@ -8,6 +8,7 @@ import {
   Swords,
   CheckCircle2,
   User,
+  Users,
   X,
 } from 'lucide-react';
 import { api, type DashboardData, type HabitData } from './lib/api';
@@ -17,8 +18,9 @@ import { HabitsView } from './views/HabitsView';
 import { RetosView } from './views/RetosView';
 import { AchievementsView } from './views/AchievementsView';
 import { ProfileView } from './views/ProfileView';
+import { FriendsView } from './views/FriendsView';
 
-export type View = 'dashboard' | 'habits' | 'retos' | 'achievements' | 'profile';
+export type View = 'dashboard' | 'habits' | 'retos' | 'achievements' | 'profile' | 'friends';
 
 interface Toast {
   id: number;
@@ -33,6 +35,7 @@ const NAV_ITEMS: { key: View; href: string; labelKey: string; icon: React.ReactN
   { key: 'dashboard', href: '/app', labelKey: 'nav.dashboard', icon: <LayoutDashboard size={18} /> },
   { key: 'habits', href: '/app/habits', labelKey: 'nav.habits', icon: <CheckCircle2 size={18} /> },
   { key: 'retos', href: '/app/retos', labelKey: 'nav.retos', icon: <Swords size={18} /> },
+  { key: 'friends', href: '/app/amigos', labelKey: 'nav.friends', icon: <Users size={18} /> },
   { key: 'achievements', href: '/app/logros', labelKey: 'nav.achievements', icon: <Medal size={18} /> },
   { key: 'profile', href: '/app/perfil', labelKey: 'nav.profile', icon: <User size={18} /> },
 ];
@@ -227,10 +230,11 @@ function AppInner({ view }: { view: View }) {
         )}
         {view === 'achievements' && <AchievementsView data={data} />}
         {view === 'profile' && <ProfileView data={data} onSaved={load} pushToast={pushToast} />}
+        {view === 'friends' && <FriendsView pushToast={pushToast} />}
       </main>
 
       <nav className="safe-bottom fixed bottom-0 inset-x-0 bg-[#0b0e1a] border-t-2 border-slate-800">
-        <div className="max-w-md mx-auto grid grid-cols-5">
+        <div className="max-w-md mx-auto grid grid-cols-6">
           {NAV_ITEMS.map((item) => (
             <a
               key={item.key}
@@ -278,7 +282,7 @@ function NotificationsPopover({
   t: (key: string, vars?: Record<string, string | number>) => string;
 }) {
   const mapTitle = (title: string) => {
-    if (title.startsWith('reto.')) return t(`notif.${title}`, {});
+    if (title.startsWith('reto.') || title.startsWith('friends.')) return t(`notif.${title}`, {});
     return title;
   };
   return (

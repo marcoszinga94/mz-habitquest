@@ -12,7 +12,6 @@ const createSchema = z.object({
   emoji: z.string().min(1).max(8).default('⭐'),
   frequency: z.enum(['daily', 'weekly']).default('daily'),
   targetPerWeek: z.number().int().min(1).max(7).default(7),
-  difficulty: z.enum(['easy', 'medium', 'hard']).default('medium'),
   reminderEnabled: z.boolean().default(false),
   reminderTime: z.string().regex(/^\d{2}:\d{2}$/).default('09:00'),
 });
@@ -49,7 +48,6 @@ export const GET: APIRoute = async ({ request }) => {
       emoji: h.emoji,
       frequency: h.frequency,
       targetPerWeek: h.targetPerWeek,
-      difficulty: h.difficulty,
       reminderEnabled: h.reminderEnabled,
       reminderTime: h.reminderTime,
       checkedToday: days.includes(today),

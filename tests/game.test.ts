@@ -8,8 +8,7 @@ import {
   levelFromXp,
   levelProgress,
   resolveReto,
-  streakBonus,
-  xpForDifficulty,
+  xpForCheckin,
   xpForLevel,
 } from '../src/lib/game';
 
@@ -36,16 +35,11 @@ describe('niveles y XP', () => {
     expect(done.level).toBe(2);
   });
 
-  it('XP por dificultad', () => {
-    expect(xpForDifficulty('easy')).toBe(10);
-    expect(xpForDifficulty('medium')).toBe(20);
-    expect(xpForDifficulty('hard')).toBe(30);
-  });
-
-  it('bono de racha cada 7 días', () => {
-    expect(streakBonus(6)).toBe(0);
-    expect(streakBonus(7)).toBe(5);
-    expect(streakBonus(14)).toBe(10);
+  it('XP por racha: base 10 + 2 por día adicional', () => {
+    expect(xpForCheckin(1)).toBe(10);
+    expect(xpForCheckin(2)).toBe(12);
+    expect(xpForCheckin(7)).toBe(22);
+    expect(xpForCheckin(30)).toBe(68);
   });
 });
 

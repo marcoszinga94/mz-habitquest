@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Copy, Plus, Swords, Users, Check, Flag, LogIn, Trash2, Pencil } from 'lucide-react';
-import { api, type DashboardData, type RetoData } from '../lib/api';
+import { useEffect, useState } from 'react';
+import { Copy, Plus, Swords, Users, Check, Flag, LogIn, Trash2, Pencil, Trophy } from 'lucide-react';
+import { api, type DashboardData, type RetoData, type RetoParticipantData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
 import { ModalShell } from './HabitsView';
 
@@ -21,6 +21,7 @@ export function RetosView({
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
   const [editReto, setEditReto] = useState<RetoData | null>(null);
+  const [rankReto, setRankReto] = useState<RetoData | null>(null);
 
   const active = data.retos.filter((r) => r.status === 'active');
   const finished = data.retos.filter((r) => r.status === 'finished');
@@ -56,7 +57,7 @@ export function RetosView({
       {active.length > 0 && (
         <div className="flex flex-col gap-3">
           {active.map((r) => (
-            <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} />
+            <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} onRanking={setRankReto} />
           ))}
         </div>
       )}
@@ -66,7 +67,7 @@ export function RetosView({
           <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wide mt-2">{t('retos.finished')}</h3>
           <div className="flex flex-col gap-3">
             {finished.map((r) => (
-              <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} />
+              <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} onRanking={setRankReto} />
             ))}
           </div>
         </>
@@ -74,6 +75,14 @@ export function RetosView({
 
       {(createOpen || editReto) && <RetoFormModal editing={editReto} onClose={closeModals} onCreated={afterSave} />}
       {joinOpen && <JoinRetoModal onClose={() => setJoinOpen(false)} onJoined={onJoined} onToast={pushToast} />}
+      {rankReto && (
+        <LeaderboardModal
+          retoId={rankReto.id}
+          name={rankReto.name}
+          goalTarget={rankReto.goalTarget}
+          onClose={() => setRankReto(null)}
+        />
+      )}
     </div>
   );
 }
@@ -84,12 +93,14 @@ function RetoCard({
   onUpdated,
   onToast,
   onEdit,
+  onRanking,
 }: {
   reto: RetoData;
   me: string;
   onUpdated: () => void;
   onToast: (t: { title: string; body?: string }) => void;
   onEdit: (r: RetoData) => void;
+  onRanking: (r: RetoData) => void;
 }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -140,6 +151,9 @@ function RetoCard({
         <span className={`text-xs font-bold px-2 py-1 rounded-full ${reto.status === 'active' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'}`}>
           {reto.status === 'active' ? t('retos.active') : t('retos.finished')}
         </span>
+        <button className="btn btn-ghost p-1.5" onClick={() => onRanking(reto)} aria-label={t('retos.ranking')}>
+          <Trophy size={14} className="text-amber-300" />
+        </button>
         {reto.status === 'finished' && reto.isCreator && (
           <button
             onClick={() => (confirmDelete ? remove() : setConfirmDelete(true))}
@@ -356,6 +370,63 @@ function JoinRetoModal({
         <button className="btn btn-primary py-2" onClick={join}>
           {t('retos.join')}
         </button>
+      </div>
+    </ModalShell>
+  );
+}
+
+function LeaderboardModal({
+  retoId,
+  name,
+  goalTarget,
+  onClose,
+}: {
+  retoId: string;
+  name: string;
+  goalTarget: number;
+  onClose: () => void;
+}) {
+  const { t } = useI18n();
+  const [data, setData] = useState<{ participants: RetoParticipantData[]; me: string } | null>(null);
+
+  useEffect(() => {
+    api<{ participants: RetoParticipantData[]; me: string }>(`/api/retos/${retoId}`)
+      .then(setData)
+      .catch(() => setData({ participants: [], me: '' }));
+  }, [retoId]);
+
+  const sorted = data ? [...data.participants].sort((a, b) => b.progress - a.progress) : [];
+  const medals = ['🥇', '🥈', '🥉'];
+
+  return (
+    <ModalShell title={`${name} · ${t('retos.ranking')}`} onClose={onClose}>
+      <div className="flex flex-col gap-2 max-h-80 overflow-y-auto">
+        {!data && <div className="text-slate-400 text-center py-6">…</div>}
+        {data && sorted.length === 0 && (
+          <div className="text-sm text-slate-400 text-center py-6">{t('retos.noParticipants')}</div>
+        )}
+        {sorted.map((p, i) => {
+          const pct = Math.min(100, Math.round((p.progress / goalTarget) * 100));
+          return (
+            <div
+              key={p.userId}
+              className={`flex items-center gap-2 rounded-lg p-2 ${p.userId === data?.me ? 'bg-indigo-900/40 border border-indigo-500/40' : 'bg-slate-900/50'}`}
+            >
+              <span className="w-7 text-center text-lg">{medals[i] ?? `${i + 1}.`}</span>
+              <span className="text-lg">{p.avatarEmoji}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold truncate">
+                  {p.username}
+                  {p.userId === data?.me && <span className="text-indigo-300"> · {t('retos.you')}</span>}
+                </div>
+                <div className="bar-track" style={{ height: '0.5rem' }}>
+                  <div className="bar-fill-gold" style={{ width: `${pct}%` }} />
+                </div>
+              </div>
+              <span className="text-xs text-slate-400 font-bold">{p.progress}</span>
+            </div>
+          );
+        })}
       </div>
     </ModalShell>
   );

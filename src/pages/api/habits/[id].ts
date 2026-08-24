@@ -11,7 +11,6 @@ const patchSchema = z
     emoji: z.string().min(1).max(8).optional(),
     frequency: z.enum(['daily', 'weekly']).optional(),
     targetPerWeek: z.number().int().min(1).max(7).optional(),
-    difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
     reminderEnabled: z.boolean().optional(),
     reminderTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
   })

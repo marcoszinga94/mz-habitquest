@@ -45,7 +45,6 @@ export interface HabitData {
   emoji: string;
   frequency: 'daily' | 'weekly';
   targetPerWeek: number;
-  difficulty: 'easy' | 'medium' | 'hard';
   reminderEnabled: boolean;
   reminderTime: string;
   checkedToday: boolean;
@@ -111,4 +110,58 @@ export interface CheckinResult {
   newLevel: number;
   unlocked: { key: string }[];
   streak: number;
+}
+
+export interface FriendData {
+  id: string;
+  username: string;
+  avatarEmoji: string;
+  avatarPhoto: string | null;
+  xp: number;
+  level: number;
+  progress: number;
+}
+
+export interface FriendRequestData {
+  id: string;
+  from: FriendData | null;
+  to: FriendData | null;
+  createdAt: string;
+}
+
+export interface FriendsData {
+  friends: FriendData[];
+  incoming: FriendRequestData[];
+  outgoing: FriendRequestData[];
+}
+
+export interface FriendRetoData {
+  id: string;
+  code: string;
+  name: string;
+  emoji: string;
+  description: string;
+  goalType: 'streak_days' | 'completions';
+  goalTarget: number;
+  betPrize: string;
+  endsAt: string;
+  participantCount: number;
+  isMember: boolean;
+  myProgress: number;
+}
+
+export interface FriendProfileData {
+  user: UserData;
+  achievements: AchievementData[];
+  retos: FriendRetoData[];
+}
+
+export interface RetoParticipantData {
+  userId: string;
+  username: string;
+  avatarEmoji: string;
+  progress: number;
+  prizeFulfilled: boolean;
+  prizeConfirmed: boolean;
+  joinedAt: string;
 }
