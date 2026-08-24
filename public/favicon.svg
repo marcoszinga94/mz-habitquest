@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fde68a" />
-      <stop offset="1" stop-color="#e8920c" />
+    <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" />
+      <stop offset="1" stop-color="#9aa7b8" />
     </linearGradient>
     <linearGradient id="flameOuter" x1="0" y1="1" x2="0" y2="0">
       <stop offset="0" stop-color="#ffd166" />
@@ -17,30 +17,30 @@
   </defs>
   <rect width="512" height="512" fill="#151027" />
 
-  <!-- Espadas cruzadas (detrás del fuego) -->
-  <g fill="url(#gold)" stroke="#7a5200" stroke-width="5" stroke-linejoin="round">
-    <g transform="rotate(45 256 330)">
-      <polygon points="0,-118 26,-22 34,2 -34,2 -26,-22" />
-      <rect x="-42" y="2" width="84" height="13" rx="5" />
-      <rect x="-8" y="15" width="16" height="26" rx="3" />
-      <circle cy="50" r="11" />
-    </g>
-    <g transform="rotate(-45 256 330)">
-      <polygon points="0,-118 26,-22 34,2 -34,2 -26,-22" />
-      <rect x="-42" y="2" width="84" height="13" rx="5" />
-      <rect x="-8" y="15" width="16" height="26" rx="3" />
-      <circle cy="50" r="11" />
-    </g>
-  </g>
+  <!-- Fogata de fondo -->
+  <path d="M256,150 C286,230 346,270 346,330 C346,368 308,392 256,392 C204,392 166,368 166,330 C166,270 226,230 256,150 Z" fill="url(#flameOuter)" />
+  <path d="M256,210 C272,258 310,288 310,330 C310,356 286,372 256,372 C226,372 202,356 202,330 C202,288 240,258 256,210 Z" fill="url(#flameInner)" />
 
   <!-- Leños -->
   <g>
-    <rect x="186" y="392" width="140" height="18" rx="9" fill="#5b3a1e" />
-    <rect x="186" y="384" width="140" height="18" rx="9" fill="#6b4423" transform="rotate(-8 256 393)" />
-    <rect x="186" y="384" width="140" height="18" rx="9" fill="#4e3018" transform="rotate(8 256 393)" />
+    <rect x="176" y="380" width="160" height="18" rx="9" fill="#5b3a1e" />
+    <rect x="176" y="372" width="160" height="18" rx="9" fill="#6b4423" transform="rotate(-8 256 381)" />
+    <rect x="176" y="372" width="160" height="18" rx="9" fill="#4e3018" transform="rotate(8 256 381)" />
   </g>
 
-  <!-- Llama -->
-  <path d="M256,172 C278,228 324,258 324,304 C324,336 298,352 256,360 C214,352 188,336 188,304 C188,258 234,228 256,172 Z" fill="url(#flameOuter)" />
-  <path d="M256,224 C270,256 296,274 296,304 C296,326 278,338 256,344 C234,338 216,326 216,304 C216,274 242,256 256,224 Z" fill="url(#flameInner)" />
+  <!-- Espadas plateadas cruzadas al frente -->
+  <g fill="url(#silver)" stroke="#4b5563" stroke-width="4" stroke-linejoin="round">
+    <g transform="rotate(45 256 290)">
+      <polygon points="256,172 268,268 272,292 240,292 244,268" />
+      <rect x="224" y="292" width="64" height="12" rx="4" />
+      <rect x="249" y="304" width="14" height="24" rx="3" />
+      <circle cx="256" cy="337" r="9" />
+    </g>
+    <g transform="rotate(-45 256 290)">
+      <polygon points="256,172 268,268 272,292 240,292 244,268" />
+      <rect x="224" y="292" width="64" height="12" rx="4" />
+      <rect x="249" y="304" width="14" height="24" rx="3" />
+      <circle cx="256" cy="337" r="9" />
+    </g>
+  </g>
 </svg>
