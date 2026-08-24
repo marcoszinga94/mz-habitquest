@@ -5,6 +5,7 @@ import { getDb } from '../../../db';
 import { users } from '../../../db/schema';
 import {
   hashPassword,
+  SESSION_COOKIE,
   verifyPassword,
 } from '../../../lib/auth';
 import { getCurrentUser, json, apiError } from '../../../lib/http';
@@ -77,4 +78,14 @@ export const PATCH: APIRoute = async ({ request }) => {
 
   const [updated] = await db.update(users).set(updates).where(eq(users.id, user.id)).returning();
   return json({ user: publicUser(updated) });
+};
+
+export const DELETE: APIRoute = async ({ request, cookies }) => {
+  const user = await getCurrentUser(request);
+  if (!user) return apiError(401, 'unauthorized');
+  const db = getDb();
+
+  await db.delete(users).where(eq(users.id, user.id));
+  cookies.delete(SESSION_COOKIE, { path: '/' });
+  return json({ ok: true });
 };

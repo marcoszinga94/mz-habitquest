@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getDb } from '../../../db';
 import { friendRequests, notifications, users } from '../../../db/schema';
 import { apiError, json, requireUser } from '../../../lib/http';
+import { sendPushToUser } from '../../../lib/push';
 
 const requestSchema = z.object({ email: z.string().email().max(255) });
 
@@ -40,6 +41,11 @@ export const POST: APIRoute = async ({ request }) => {
     type: 'system',
     title: 'friends.request',
     body: me.username,
+  });
+  await sendPushToUser(db, target.id, {
+    title: 'HabitQuest',
+    body: `🤝 ${me.username} te envió una solicitud de amistad`,
+    tag: 'friend',
   });
 
   return json({ ok: true });

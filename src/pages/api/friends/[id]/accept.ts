@@ -3,6 +3,7 @@ import { and, eq } from 'drizzle-orm';
 import { getDb } from '../../../../db';
 import { friendRequests, notifications, users } from '../../../../db/schema';
 import { apiError, json, requireUser } from '../../../../lib/http';
+import { sendPushToUser } from '../../../../lib/push';
 
 export const POST: APIRoute = async ({ request, params }) => {
   const me = await requireUser(request);
@@ -33,6 +34,11 @@ export const POST: APIRoute = async ({ request, params }) => {
       type: 'system',
       title: 'friends.accepted',
       body: me.username,
+    });
+    await sendPushToUser(db, req.fromUserId, {
+      title: 'HabitQuest',
+      body: `✅ ${me.username} aceptó tu solicitud de amistad`,
+      tag: 'friend',
     });
   }
 

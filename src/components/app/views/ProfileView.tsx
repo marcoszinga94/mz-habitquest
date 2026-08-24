@@ -47,7 +47,13 @@ export function ProfileView({
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const deleteAccount = async () => {
+    await api('/api/auth/me', { method: 'DELETE' });
+    window.location.href = '/login';
+  };
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -241,6 +247,18 @@ export function ProfileView({
       <button className="btn btn-primary py-2.5 text-base" onClick={save} disabled={busy}>
         {t('profile.save')}
       </button>
+
+      <section className="panel p-4 border-danger/50">
+        <h3 className="font-bold mb-1 text-red-400">{t('profile.deleteAccount')}</h3>
+        <p className="text-xs text-slate-400 mb-3">{t('profile.deleteHint')}</p>
+        <button
+          onClick={() => (confirmDelete ? deleteAccount() : setConfirmDelete(true))}
+          onBlur={() => window.setTimeout(() => setConfirmDelete(false), 2500)}
+          className={`btn w-full py-2 ${confirmDelete ? 'btn-danger' : 'btn-ghost'}`}
+        >
+          {confirmDelete ? t('profile.deleteConfirm') : t('profile.deleteAccount')}
+        </button>
+      </section>
     </div>
   );
 }

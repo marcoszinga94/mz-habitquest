@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { api, type DashboardData, type HabitData } from './lib/api';
 import { I18nProvider, useI18n } from './lib/i18n';
+import { subscribeToPush } from './lib/push';
 import { DashboardView } from './views/DashboardView';
 import { HabitsView } from './views/HabitsView';
 import { RetosView } from './views/RetosView';
@@ -69,6 +70,9 @@ function AppInner({ view }: { view: View }) {
 
   useEffect(() => {
     if ('Notification' in window) setNotifPermission(Notification.permission);
+    if ('Notification' in window && Notification.permission === 'granted') {
+      subscribeToPush().catch(() => {});
+    }
   }, []);
 
   const checkReminders = useCallback(() => {
@@ -100,7 +104,11 @@ function AppInner({ view }: { view: View }) {
     const perm = await Notification.requestPermission();
     setNotifPermission(perm);
     if (perm === 'granted') {
-      pushToast({ icon: 'info', title: t('nav.reminders.on') });
+      const ok = await subscribeToPush();
+      pushToast({
+        icon: 'info',
+        title: ok ? t('nav.reminders.on') : t('nav.reminders.pushError'),
+      });
     }
   };
 

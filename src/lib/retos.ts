@@ -3,6 +3,7 @@ import type { Db } from '../db';
 import { notifications, retoCheckins, retoParticipants, retos } from '../db/schema';
 import type { Reto, User } from '../db/schema';
 import { activeStreakInWindow, addDays, completionsInWindow, resolveReto, toDateKey } from './game';
+import { sendPushToUser } from './push';
 
 export async function computeRetoProgress(
   db: Db,
@@ -98,6 +99,19 @@ export async function finishReto(db: Db, reto: Reto): Promise<void> {
       title,
       body,
     });
+    if (isWinner) {
+      await sendPushToUser(db, p.userId, {
+        title: reto.name,
+        body: `🏆 ¡Ganaste el reto! ${reto.betPrize ? 'Cobra: ' + reto.betPrize : ''}`,
+        tag: `reto-${reto.id}`,
+      });
+    } else {
+      await sendPushToUser(db, p.userId, {
+        title: reto.name,
+        body: `💀 Perdiste el reto${reto.betPrize ? ', cumple: ' + reto.betPrize : ''}`,
+        tag: `reto-${reto.id}`,
+      });
+    }
   }
 }
 

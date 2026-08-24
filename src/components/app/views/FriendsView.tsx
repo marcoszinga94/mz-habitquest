@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { UserPlus, Check, X, Users, Swords } from 'lucide-react';
+import { UserPlus, Check, X, Users, Swords, Trash2 } from 'lucide-react';
 import {
   api,
   type FriendData,
@@ -18,6 +18,7 @@ export function FriendsView({
   const [data, setData] = useState<FriendsData | null>(null);
   const [email, setEmail] = useState('');
   const [viewing, setViewing] = useState<FriendData | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const d = await api<FriendsData>('/api/friends');
@@ -56,6 +57,13 @@ export function FriendsView({
 
   const respond = async (requestId: string, accept: boolean) => {
     await api(`/api/friends/${requestId}/${accept ? 'accept' : 'decline'}`, { method: 'POST' });
+    load();
+  };
+
+  const removeFriend = async (friendId: string) => {
+    await api(`/api/friends/${friendId}`, { method: 'DELETE' });
+    setConfirmRemove(null);
+    pushToast({ title: t('friends.removed') });
     load();
   };
 
@@ -103,20 +111,26 @@ export function FriendsView({
           <div className="text-sm text-slate-400 py-4 text-center">{t('friends.empty')}</div>
         )}
         {data?.friends.map((f) => (
-          <button
-            key={f.id}
-            onClick={() => setViewing(f)}
-            className="flex items-center gap-3 bg-slate-900/50 hover:bg-slate-800/70 rounded-lg p-2 text-left"
-          >
-            <Avatar user={f} />
-            <div className="flex-1">
-              <div className="font-semibold text-sm">{f.username}</div>
-              <div className="text-[11px] text-slate-400">
-                {t('dashboard.level')} {f.level} · {f.xp} {t('dashboard.xp')}
+          <div key={f.id} className="flex items-center gap-3 bg-slate-900/50 hover:bg-slate-800/70 rounded-lg p-2">
+            <button className="flex items-center gap-3 flex-1 text-left" onClick={() => setViewing(f)}>
+              <Avatar user={f} />
+              <div className="flex-1">
+                <div className="font-semibold text-sm">{f.username}</div>
+                <div className="text-[11px] text-slate-400">
+                  {t('dashboard.level')} {f.level} · {f.xp} {t('dashboard.xp')}
+                </div>
               </div>
-            </div>
-            <span className="text-xs text-indigo-300">→</span>
-          </button>
+              <span className="text-xs text-indigo-300">→</span>
+            </button>
+            <button
+              onClick={() => (confirmRemove === f.id ? removeFriend(f.id) : setConfirmRemove(f.id))}
+              onBlur={() => window.setTimeout(() => setConfirmRemove(null), 1500)}
+              className={`btn ${confirmRemove === f.id ? 'btn-danger' : 'btn-ghost'} p-1.5`}
+              aria-label={t('friends.remove')}
+            >
+              {confirmRemove === f.id ? <span className="px-1 text-xs">{t('friends.removeConfirm')}</span> : <Trash2 size={14} />}
+            </button>
+          </div>
         ))}
       </section>
 
