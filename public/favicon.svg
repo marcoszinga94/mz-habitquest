@@ -31,13 +31,13 @@
   <!-- Espadas plateadas cruzadas al frente -->
   <g fill="url(#silver)" stroke="#4b5563" stroke-width="4" stroke-linejoin="round">
     <g transform="rotate(45 256 290)">
-      <polygon points="256,172 268,268 272,292 240,292 244,268" />
+      <polygon points="256,128 268,268 272,292 240,292 244,268" />
       <rect x="224" y="292" width="64" height="12" rx="4" />
       <rect x="249" y="304" width="14" height="24" rx="3" />
       <circle cx="256" cy="337" r="9" />
     </g>
     <g transform="rotate(-45 256 290)">
-      <polygon points="256,172 268,268 272,292 240,292 244,268" />
+      <polygon points="256,128 268,268 272,292 240,292 244,268" />
       <rect x="224" y="292" width="64" height="12" rx="4" />
       <rect x="249" y="304" width="14" height="24" rx="3" />
       <circle cx="256" cy="337" r="9" />
