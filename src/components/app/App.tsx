@@ -42,14 +42,42 @@ const NAV_ITEMS: { key: View; href: string; labelKey: string; icon: React.ReactN
   { key: 'profile', href: '/app/perfil', labelKey: 'nav.profile', icon: <User size={18} /> },
 ];
 
+const VIEW_PATHS: Record<View, string> = {
+  dashboard: '/app',
+  habits: '/app/habits',
+  retos: '/app/retos',
+  achievements: '/app/logros',
+  profile: '/app/perfil',
+  friends: '/app/amigos',
+};
+
 function AppInner({ view }: { view: View }) {
   const { t, lang, setLang } = useI18n();
+  const [currentView, setCurrentView] = useState<View>(view);
   const [data, setData] = useState<DashboardData | null>(null);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifPermission, setNotifPermission] = useState<NotificationPermission>('default');
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [langOpen, setLangOpen] = useState(false);
   const reminderFiredRef = useRef<Set<string>>(new Set());
+
+  const navigate = useCallback((v: View) => {
+    setCurrentView(v);
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', VIEW_PATHS[v]);
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onPop = () => {
+      const path = window.location.pathname;
+      const found = (Object.keys(VIEW_PATHS) as View[]).find((v) => VIEW_PATHS[v] === path);
+      if (found) setCurrentView(found);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const pushToast = useCallback((toast: Omit<Toast, 'id'>) => {
     const id = ++toastId;
@@ -151,12 +179,12 @@ function AppInner({ view }: { view: View }) {
   const handleHabitSaved = useCallback(() => load(), [load]);
   const handleRetoCreated = useCallback(async () => {
     await load();
-    window.location.href = '/app/retos';
-  }, [load]);
+    navigate('retos');
+  }, [load, navigate]);
   const handleRetoJoined = useCallback(async () => {
     await load();
-    window.location.href = '/app/retos';
-  }, [load]);
+    navigate('retos');
+  }, [load, navigate]);
   const handleRetoUpdated = useCallback(async () => {
     await load();
   }, [load]);
@@ -174,20 +202,21 @@ function AppInner({ view }: { view: View }) {
   return (
     <div className="min-h-screen lg:flex lg:items-start lg:justify-center lg:max-w-7xl lg:mx-auto lg:px-6">
       <aside className="hidden lg:flex lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:flex-col lg:py-6 lg:mr-6">
-        <a href="/app" className="flex items-center gap-3 px-3 mb-8">
+        <button type="button" onClick={() => navigate('dashboard')} className="flex items-center gap-3 px-3 mb-8 text-left">
           <div className="text-3xl sword-glow">⚔️</div>
           <h1 className="text-2xl font-extrabold tracking-tight gold-text">{t('app.title')}</h1>
-        </a>
+        </button>
         <nav className="flex flex-col gap-1.5">
           {NAV_ITEMS.map((item) => (
-            <a
+            <button
               key={item.key}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${view === item.key ? 'nav-item-active' : 'nav-item hover:bg-white/5'}`}
+              type="button"
+              onClick={() => navigate(item.key)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${currentView === item.key ? 'nav-item-active' : 'nav-item hover:bg-white/5'}`}
             >
               {item.icon}
               {t(item.labelKey)}
-            </a>
+            </button>
           ))}
         </nav>
         <div className="mt-auto panel p-3">
@@ -208,10 +237,10 @@ function AppInner({ view }: { view: View }) {
 
       <div className="flex-1 min-w-0 max-w-2xl mx-auto px-3 lg:px-0 lg:py-6 pb-28 lg:pb-10">
       <header className="flex items-center gap-3 py-3 border-b-2 border-slate-800">
-        <a href="/app" className="flex items-center gap-3 lg:hidden">
+        <button type="button" onClick={() => navigate('dashboard')} className="flex items-center gap-3 lg:hidden">
           <div className="text-2xl sword-glow">⚔️</div>
           <h1 className="text-xl font-extrabold tracking-tight gold-text">{t('app.title')}</h1>
-        </a>
+        </button>
         <div className="ml-auto flex items-center gap-1">
           <div className="relative">
             <button
@@ -259,11 +288,11 @@ function AppInner({ view }: { view: View }) {
       </header>
 
       <main className="mt-5">
-        {view === 'dashboard' && (
-          <DashboardView data={data} onCheckin={handleCheckin} onReminders={askReminders} notifPermission={notifPermission} />
+        {currentView === 'dashboard' && (
+          <DashboardView data={data} onCheckin={handleCheckin} onReminders={askReminders} notifPermission={notifPermission} onNavigate={navigate} />
         )}
-        {view === 'habits' && <HabitsView data={data} onCheckin={handleCheckin} onSaved={handleHabitSaved} />}
-        {view === 'retos' && (
+        {currentView === 'habits' && <HabitsView data={data} onCheckin={handleCheckin} onSaved={handleHabitSaved} />}
+        {currentView === 'retos' && (
           <RetosView
             data={data}
             onCreated={handleRetoCreated}
@@ -272,23 +301,24 @@ function AppInner({ view }: { view: View }) {
             pushToast={pushToast}
           />
         )}
-        {view === 'achievements' && <AchievementsView data={data} />}
-        {view === 'profile' && <ProfileView data={data} onSaved={load} pushToast={pushToast} />}
-        {view === 'friends' && <FriendsView pushToast={pushToast} />}
+        {currentView === 'achievements' && <AchievementsView data={data} />}
+        {currentView === 'profile' && <ProfileView data={data} onSaved={load} pushToast={pushToast} />}
+        {currentView === 'friends' && <FriendsView pushToast={pushToast} />}
       </main>
       </div>
 
       <nav className="lg:hidden safe-bottom fixed bottom-0 inset-x-0 z-40 bg-[#0b0e1a] border-t-2 border-slate-800">
         <div className="max-w-md mx-auto grid grid-cols-6">
           {NAV_ITEMS.map((item) => (
-            <a
+            <button
               key={item.key}
-              href={item.href}
-              className={`nav-item flex flex-col items-center gap-0.5 py-2.5 text-xs font-semibold ${view === item.key ? 'nav-active' : ''}`}
+              type="button"
+              onClick={() => navigate(item.key)}
+              className={`nav-item flex flex-col items-center gap-0.5 py-2.5 text-xs font-semibold ${currentView === item.key ? 'nav-active' : ''}`}
             >
               {item.icon}
               {t(item.labelKey)}
-            </a>
+            </button>
           ))}
         </div>
       </nav>

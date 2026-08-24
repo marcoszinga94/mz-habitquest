@@ -6,11 +6,13 @@ export function DashboardView({
   data,
   onCheckin,
   onReminders,
+  onNavigate,
   notifPermission,
 }: {
   data: DashboardData;
   onCheckin: (habit: HabitData) => void;
   onReminders: () => void;
+  onNavigate: (view: 'habits' | 'retos') => void;
   notifPermission: NotificationPermission;
 }) {
   const { t } = useI18n();
@@ -79,7 +81,7 @@ export function DashboardView({
       )}
 
       <section className="panel p-4 relative">
-        <a href="/app/habits" className="absolute inset-0 rounded-lg" aria-label={t('nav.habits')} />
+        <button type="button" onClick={() => onNavigate('habits')} className="absolute inset-0 rounded-lg" aria-label={t('nav.habits')} />
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold">{t('habits.title')}</h3>
           <ChevronRight size={16} className="text-indigo-300 pointer-events-none" />
@@ -113,7 +115,7 @@ export function DashboardView({
       </section>
 
       <section className="panel p-4 relative">
-        <a href="/app/retos" className="absolute inset-0 rounded-lg" aria-label={t('nav.retos')} />
+        <button type="button" onClick={() => onNavigate('retos')} className="absolute inset-0 rounded-lg" aria-label={t('nav.retos')} />
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold">{t('retos.title')}</h3>
           <ChevronRight size={16} className="text-indigo-300 pointer-events-none" />
