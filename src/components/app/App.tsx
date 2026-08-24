@@ -112,14 +112,13 @@ function AppInner({ view }: { view: View }) {
   };
 
   const handleCheckin = useCallback(
-    async (habit: HabitData, done: boolean) => {
-      const method = done ? 'POST' : 'DELETE';
+    async (habit: HabitData) => {
       const res = await api<{ result?: { xpGained: number; levelUp: boolean; newLevel: number; unlocked: { key: string }[] } }>(
         `/api/habits/${habit.id}/checkin`,
-        { method },
+        { method: 'POST' },
       );
       const r = res.result;
-      if (done && r) {
+      if (r) {
         pushToast({
           icon: 'xp',
           title: t('toast.xp', { xp: r.xpGained }),
@@ -163,7 +162,7 @@ function AppInner({ view }: { view: View }) {
     <div className="min-h-screen max-w-md mx-auto px-3 pb-28">
       <header className="flex items-center gap-3 py-3 border-b-2 border-slate-800">
         <a href="/app" className="flex items-center gap-3">
-          <div className="text-2xl">⚔️</div>
+          <div className="text-2xl sword-glow">⚔️</div>
           <h1 className="text-xl font-extrabold tracking-tight gold-text">{t('app.title')}</h1>
         </a>
         <div className="ml-auto flex items-center gap-1">
@@ -248,7 +247,7 @@ function AppInner({ view }: { view: View }) {
       {toasts.length > 0 && (
         <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 w-80">
           {toasts.map((toast) => (
-            <div key={toast.id} className="panel p-3 flex items-start gap-3 animate-in">
+            <div key={toast.id} className="panel toast-glow p-3 flex items-start gap-3">
               <div className="text-xl">
                 {toast.icon === 'xp' && '✨'}
                 {toast.icon === 'achievement' && '🏆'}

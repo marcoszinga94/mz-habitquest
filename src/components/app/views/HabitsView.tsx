@@ -9,7 +9,7 @@ export function HabitsView({
   onSaved,
 }: {
   data: DashboardData;
-  onCheckin: (habit: HabitData, done: boolean) => void;
+  onCheckin: (habit: HabitData) => void;
   onSaved: () => void;
 }) {
   const { t } = useI18n();
@@ -59,8 +59,9 @@ export function HabitsView({
                 </span>
               </div>
               <button
-                onClick={() => onCheckin(h, !h.checkedToday)}
-                className={`btn py-2 text-sm ${h.checkedToday ? 'btn-gold' : 'btn-primary'}`}
+                onClick={() => onCheckin(h)}
+                disabled={h.checkedToday}
+                className={`btn py-2 text-sm ${h.checkedToday ? 'btn-gold opacity-70' : 'btn-primary'}`}
               >
                 {h.checkedToday ? t('habits.checked') : t('habits.check')}
               </button>

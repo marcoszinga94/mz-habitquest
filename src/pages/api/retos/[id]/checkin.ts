@@ -9,7 +9,6 @@ import {
   computeRetoProgress,
   refreshRetoProgress,
   retoCheckedToday,
-  uncheckinReto,
 } from '../../../../lib/retos';
 import { toDateKey } from '../../../../lib/game';
 
@@ -47,19 +46,4 @@ export const POST: APIRoute = async ({ request, params }) => {
   const progress = await computeRetoProgress(db, reto, user.id);
 
   return json({ checkedToday: true, progress });
-};
-
-export const DELETE: APIRoute = async ({ request, params }) => {
-  const user = await requireUser(request);
-  const db = getDb();
-  const ctx = await loadReto(db, user.id, params.id ?? '');
-  if (!ctx) return apiError(404, 'not_found');
-  const reto = ctx.reto;
-
-  const today = toDateKey(new Date());
-  await uncheckinReto(db, reto.id, user.id, today);
-  await refreshRetoProgress(db, reto);
-  const progress = await computeRetoProgress(db, reto, user.id);
-
-  return json({ checkedToday: false, progress });
 };

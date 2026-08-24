@@ -55,18 +55,6 @@ export async function checkinReto(db: Db, retoId: string, userId: string, day: s
   await db.insert(retoCheckins).values({ retoId, userId, day });
 }
 
-export async function uncheckinReto(db: Db, retoId: string, userId: string, day: string): Promise<void> {
-  await db
-    .delete(retoCheckins)
-    .where(
-      and(
-        eq(retoCheckins.retoId, retoId),
-        eq(retoCheckins.userId, userId),
-        eq(retoCheckins.day, day),
-      ),
-    );
-}
-
 export async function refreshRetoProgress(db: Db, reto: Reto): Promise<void> {
   const participants = await db
     .select()

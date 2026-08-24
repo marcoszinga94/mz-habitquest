@@ -100,34 +100,6 @@ export async function applyCheckin(
   };
 }
 
-export async function removeCheckin(
-  db: Db,
-  user: User,
-  habit: Habit,
-  today: string,
-): Promise<void> {
-  const since = addDays(today, -45);
-  const days = await loadCheckins(db, habit.id, since);
-  const hadToday = days.includes(today);
-  if (!hadToday) return;
-
-  const newDays = days.filter((d) => d !== today);
-  const streak = computeStreak(newDays, today);
-  const xpLost = xpForDifficulty(habit.difficulty as Difficulty) + streakBonus(streak + 1);
-  const newXp = Math.max(0, user.xp - xpLost);
-
-  await db.batch([
-    db
-      .delete(checkins)
-      .where(and(eq(checkins.habitId, habit.id), eq(checkins.day, today))),
-    db
-      .update(habits)
-      .set({ totalCompletions: Math.max(0, habit.totalCompletions - 1) })
-      .where(eq(habits.id, habit.id)),
-    db.update(users).set({ xp: newXp }).where(eq(users.id, user.id)),
-  ]);
-}
-
 async function unlockAchievements(
   db: Db,
   userId: string,

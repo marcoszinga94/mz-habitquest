@@ -9,7 +9,7 @@ export function DashboardView({
   notifPermission,
 }: {
   data: DashboardData;
-  onCheckin: (habit: HabitData, done: boolean) => void;
+  onCheckin: (habit: HabitData) => void;
   onReminders: () => void;
   notifPermission: NotificationPermission;
 }) {
@@ -101,8 +101,9 @@ export function DashboardView({
                   </div>
                 </div>
                 <button
-                  onClick={() => onCheckin(h, !h.checkedToday)}
-                  className={`btn px-3 py-1.5 text-sm ${h.checkedToday ? 'btn-gold' : 'btn-primary'}`}
+                  onClick={() => onCheckin(h)}
+                  disabled={h.checkedToday}
+                  className={`btn px-3 py-1.5 text-sm ${h.checkedToday ? 'btn-gold opacity-70' : 'btn-primary'}`}
                 >
                   {h.checkedToday ? t('habits.checked') : t('habits.check')}
                 </button>

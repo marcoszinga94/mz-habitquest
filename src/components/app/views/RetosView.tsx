@@ -120,9 +120,8 @@ function RetoCard({
     onUpdated();
   };
 
-  const toggleCheckin = async () => {
-    const method = reto.checkedToday ? 'DELETE' : 'POST';
-    await api(`/api/retos/${reto.id}/checkin`, { method });
+  const checkin = async () => {
+    await api(`/api/retos/${reto.id}/checkin`, { method: 'POST' });
     onUpdated();
   };
 
@@ -167,8 +166,9 @@ function RetoCard({
 
       {reto.status === 'active' && (
         <button
-          onClick={toggleCheckin}
-          className={`btn py-2 text-sm ${reto.checkedToday ? 'btn-gold' : 'btn-primary'}`}
+          onClick={checkin}
+          disabled={reto.checkedToday}
+          className={`btn py-2 text-sm ${reto.checkedToday ? 'btn-gold opacity-70' : 'btn-primary'}`}
         >
           {reto.checkedToday ? t('retos.checkedin') : t('retos.checkin')}
         </button>
