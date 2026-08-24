@@ -3,6 +3,7 @@ import { Copy, Plus, Swords, Users, Check, Flag, LogIn, Trash2, Pencil, Trophy }
 import { api, type DashboardData, type RetoData, type RetoParticipantData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
 import { ModalShell } from './HabitsView';
+import { EmojiPicker } from '../EmojiPicker';
 
 export function RetosView({
   data,
@@ -286,7 +287,7 @@ function RetoFormModal({
         </label>
         <label className="flex flex-col gap-1 text-sm">
           <span>{t('retos.emoji')}</span>
-          <input className="input w-24 text-center text-lg" value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={4} />
+          <EmojiPicker value={emoji} onChange={setEmoji} />
         </label>
         <label className="flex flex-col gap-1 text-sm">
           <span>{t('retos.description')}</span>

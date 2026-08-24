@@ -3,6 +3,7 @@ import { Bell, Flame, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { api, type DashboardData, type HabitData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
 import { parseScheduleDays } from '../../../lib/game';
+import { EmojiPicker } from '../EmojiPicker';
 
 export function HabitsView({
   data,
@@ -138,7 +139,7 @@ function HabitFormModal({
         </label>
         <label className="flex flex-col gap-1 text-sm">
           <span>{t('form.emoji')}</span>
-          <input className="input w-24 text-center text-lg" value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={4} />
+          <EmojiPicker value={emoji} onChange={setEmoji} />
         </label>
         <div className="flex flex-col gap-1 text-sm">
           <span>{t('form.schedule')}</span>
