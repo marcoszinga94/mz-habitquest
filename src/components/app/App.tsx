@@ -164,9 +164,7 @@ function AppInner({ view }: { view: View }) {
       <header className="flex items-center gap-3 py-4 border-b-2 border-slate-800">
         <a href="/app" className="flex items-center gap-3">
           <div className="text-2xl">⚔️</div>
-          <h1 className="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">
-            {t('app.title')}
-          </h1>
+          <h1 className="text-xl font-extrabold tracking-tight gold-text">{t('app.title')}</h1>
         </a>
         <div className="ml-auto flex items-center gap-1">
           <div className="relative">
@@ -238,9 +236,7 @@ function AppInner({ view }: { view: View }) {
             <a
               key={item.key}
               href={item.href}
-              className={`flex flex-col items-center gap-0.5 py-2.5 text-xs font-semibold transition-colors ${
-                view === item.key ? 'text-indigo-300' : 'text-slate-500 hover:text-slate-300'
-              }`}
+              className={`nav-item flex flex-col items-center gap-0.5 py-2.5 text-xs font-semibold ${view === item.key ? 'nav-active' : ''}`}
             >
               {item.icon}
               {t(item.labelKey)}
