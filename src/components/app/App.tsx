@@ -160,8 +160,8 @@ function AppInner({ view }: { view: View }) {
   const unread = data.stats.unreadNotifications;
 
   return (
-    <div className="min-h-screen max-w-3xl mx-auto px-4 pb-16">
-      <header className="flex items-center gap-3 py-4 border-b-2 border-slate-800">
+    <div className="min-h-screen max-w-md mx-auto px-3 pb-28">
+      <header className="flex items-center gap-3 py-3 border-b-2 border-slate-800">
         <a href="/app" className="flex items-center gap-3">
           <div className="text-2xl">⚔️</div>
           <h1 className="text-xl font-extrabold tracking-tight gold-text">{t('app.title')}</h1>
@@ -169,7 +169,7 @@ function AppInner({ view }: { view: View }) {
         <div className="ml-auto flex items-center gap-1">
           <div className="relative">
             <button
-              className="btn btn-ghost p-2 relative"
+              className="btn btn-ghost p-2.5 relative"
               onClick={() => setNotifOpen((o) => !o)}
               aria-label={t('nav.notifications')}
             >
@@ -184,7 +184,7 @@ function AppInner({ view }: { view: View }) {
           </div>
 
           <div className="relative">
-            <button className="btn btn-ghost px-2 py-2 flex items-center gap-1" onClick={() => setLangOpen((o) => !o)}>
+            <button className="btn btn-ghost px-2.5 py-2.5 flex items-center gap-1" onClick={() => setLangOpen((o) => !o)}>
               {lang === 'es' ? 'ES' : 'EN'}
               <ChevronDown size={14} />
             </button>
@@ -206,7 +206,7 @@ function AppInner({ view }: { view: View }) {
             )}
           </div>
 
-          <button className="btn btn-ghost p-2" onClick={logout} aria-label={t('nav.logout')}>
+          <button className="btn btn-ghost p-2.5" onClick={logout} aria-label={t('nav.logout')}>
             <LogOut size={18} />
           </button>
         </div>
@@ -230,8 +230,8 @@ function AppInner({ view }: { view: View }) {
         {view === 'profile' && <ProfileView data={data} onSaved={load} pushToast={pushToast} />}
       </main>
 
-      <nav className="fixed bottom-0 inset-x-0 bg-[#0b0e1a] border-t-2 border-slate-800">
-        <div className="max-w-3xl mx-auto grid grid-cols-5">
+      <nav className="safe-bottom fixed bottom-0 inset-x-0 bg-[#0b0e1a] border-t-2 border-slate-800">
+        <div className="max-w-md mx-auto grid grid-cols-5">
           {NAV_ITEMS.map((item) => (
             <a
               key={item.key}

@@ -168,8 +168,12 @@ function HabitFormModal({
 
 export function ModalShell({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="panel p-4 w-full max-w-md animate-in" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
+      <div
+        className="panel p-4 w-full max-w-md animate-in rounded-b-none sm:rounded-lg sm:mb-0 safe-bottom"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-slate-600 sm:hidden" />
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-lg">{title}</h3>
           <button className="btn btn-ghost p-1.5" onClick={onClose} aria-label="close">

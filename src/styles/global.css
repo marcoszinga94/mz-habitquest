@@ -19,6 +19,19 @@ body {
   font-family: var(--font-sans);
 }
 
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button,
+  a {
+    touch-action: manipulation;
+  }
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
 /* Cielo estrellado de fondo */
 .sky {
   position: fixed;
@@ -198,6 +211,11 @@ body {
   }
   .nav-item:hover {
     color: #c7bdf0;
+  }
+
+  /* Ajustes para app móvil */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 

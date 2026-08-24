@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Plus, Swords, Users, Check, Flag, LogIn, Trash2 } from 'lucide-react';
+import { Copy, Plus, Swords, Users, Check, Flag, LogIn, Trash2, Pencil } from 'lucide-react';
 import { api, type DashboardData, type RetoData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
 import { ModalShell } from './HabitsView';
@@ -20,9 +20,20 @@ export function RetosView({
   const { t } = useI18n();
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
+  const [editReto, setEditReto] = useState<RetoData | null>(null);
 
   const active = data.retos.filter((r) => r.status === 'active');
   const finished = data.retos.filter((r) => r.status === 'finished');
+
+  const closeModals = () => {
+    setCreateOpen(false);
+    setEditReto(null);
+  };
+
+  const afterSave = () => {
+    closeModals();
+    onCreated();
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -45,7 +56,7 @@ export function RetosView({
       {active.length > 0 && (
         <div className="flex flex-col gap-3">
           {active.map((r) => (
-            <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} />
+            <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} />
           ))}
         </div>
       )}
@@ -55,13 +66,13 @@ export function RetosView({
           <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wide mt-2">{t('retos.finished')}</h3>
           <div className="flex flex-col gap-3">
             {finished.map((r) => (
-              <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} />
+              <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} />
             ))}
           </div>
         </>
       )}
 
-      {createOpen && <RetoFormModal onClose={() => setCreateOpen(false)} onCreated={onCreated} />}
+      {(createOpen || editReto) && <RetoFormModal editing={editReto} onClose={closeModals} onCreated={afterSave} />}
       {joinOpen && <JoinRetoModal onClose={() => setJoinOpen(false)} onJoined={onJoined} onToast={pushToast} />}
     </div>
   );
@@ -72,11 +83,13 @@ function RetoCard({
   me,
   onUpdated,
   onToast,
+  onEdit,
 }: {
   reto: RetoData;
   me: string;
   onUpdated: () => void;
   onToast: (t: { title: string; body?: string }) => void;
+  onEdit: (r: RetoData) => void;
 }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -157,9 +170,14 @@ function RetoCard({
       )}
 
       {reto.status === 'active' && reto.isCreator && (
-        <button className="btn btn-ghost text-sm py-1.5 flex items-center justify-center gap-1" onClick={finishEarly}>
-          <Flag size={14} /> {t('retos.finishEarly')}
-        </button>
+        <div className="flex gap-2">
+          <button className="btn btn-ghost flex-1 text-sm py-1.5 flex items-center justify-center gap-1" onClick={() => onEdit(reto)}>
+            <Pencil size={14} /> {t('retos.edit')}
+          </button>
+          <button className="btn btn-ghost flex-1 text-sm py-1.5 flex items-center justify-center gap-1" onClick={finishEarly}>
+            <Flag size={14} /> {t('retos.finishEarly')}
+          </button>
+        </div>
       )}
 
       {reto.status === 'finished' && (
@@ -198,28 +216,32 @@ function RetoCard({
 }
 
 function RetoFormModal({
+  editing,
   onClose,
   onCreated,
 }: {
+  editing: RetoData | null;
   onClose: () => void;
   onCreated: () => void;
 }) {
   const { t } = useI18n();
-  const [name, setName] = useState('');
-  const [emoji, setEmoji] = useState('⚔️');
-  const [description, setDescription] = useState('');
-  const [goalType, setGoalType] = useState<'streak_days' | 'completions'>('streak_days');
-  const [goalTarget, setGoalTarget] = useState(7);
-  const [days, setDays] = useState(7);
-  const [betPrize, setBetPrize] = useState('');
+  const [name, setName] = useState(editing?.name ?? '');
+  const [emoji, setEmoji] = useState(editing?.emoji ?? '⚔️');
+  const [description, setDescription] = useState(editing?.description ?? '');
+  const [goalType, setGoalType] = useState<'streak_days' | 'completions'>(editing?.goalType ?? 'streak_days');
+  const [goalTarget, setGoalTarget] = useState(editing?.goalTarget ?? 7);
+  const [days, setDays] = useState(editing ? Math.max(1, Math.round((new Date(editing.endsAt).getTime() - new Date(editing.startsAt).getTime()) / 86400000)) : 7);
+  const [betPrize, setBetPrize] = useState(editing?.betPrize ?? '');
   const [error, setError] = useState('');
 
   const submit = async () => {
     try {
-      await api('/api/retos', {
-        method: 'POST',
-        body: JSON.stringify({ name, emoji, description, goalType, goalTarget, days, betPrize }),
-      });
+      const body = JSON.stringify({ name, emoji, description, goalType, goalTarget, days, betPrize });
+      if (editing) {
+        await api(`/api/retos/${editing.id}`, { method: 'PATCH', body });
+      } else {
+        await api('/api/retos', { method: 'POST', body });
+      }
       onCreated();
     } catch {
       setError(t('common.error'));
@@ -227,7 +249,7 @@ function RetoFormModal({
   };
 
   return (
-    <ModalShell title={t('retos.create')} onClose={onClose}>
+    <ModalShell title={editing ? t('retos.edit') : t('retos.create')} onClose={onClose}>
       <div className="flex flex-col gap-3">
         <label className="flex flex-col gap-1 text-sm">
           <span>{t('retos.name')}</span>
@@ -268,7 +290,7 @@ function RetoFormModal({
         {error && <div className="text-sm text-red-400">{error}</div>}
         <div className="flex gap-2">
           <button className="btn btn-primary flex-1 py-2" onClick={submit}>
-            {t('retos.create')}
+            {editing ? t('retos.save') : t('retos.create')}
           </button>
           <button className="btn btn-ghost px-4 py-2" onClick={onClose}>
             {t('form.cancel')}
