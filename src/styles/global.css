@@ -37,11 +37,24 @@ html {
   }
 }
 
-/* Cielo estrellado de fondo con luna */
-.sky {
+/* Escenario de fondo fijo que siempre queda detrás del contenido */
+.bg-scene {
   position: fixed;
   inset: 0;
-  z-index: -6;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* El contenido del sitio va por encima del escenario */
+.content-layer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Cielo estrellado de fondo con luna */
+.sky {
+  position: absolute;
+  inset: 0;
   pointer-events: none;
   background:
     /* Luna con halo */
@@ -69,9 +82,8 @@ html {
 
 /* Aurora mágica: masas de color que se desplazan lentamente */
 .aurora {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: -4;
   pointer-events: none;
   opacity: 0.7;
   background:
@@ -85,9 +97,8 @@ html {
 
 /* Neblina mágica que deriva lentamente */
 .fog {
-  position: fixed;
+  position: absolute;
   inset: -25%;
-  z-index: -3;
   pointer-events: none;
   background:
     radial-gradient(55% 40% at 28% 30%, rgba(124, 58, 237, 0.14), transparent 70%),
@@ -99,19 +110,19 @@ html {
 
 /* Silueta de montañas y horizonte al fondo */
 .landscape {
-  position: fixed;
-  inset: auto 0 0 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   height: 44vh;
-  z-index: -5;
   pointer-events: none;
   overflow: hidden;
 }
 
 /* Polvo de hadas: destellos parpadeantes */
 .dust {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: -2;
   pointer-events: none;
   background:
     radial-gradient(2px 2px at 18% 28%, rgba(253, 230, 138, 0.8), transparent 100%),
@@ -126,9 +137,8 @@ html {
 
 /* Brasas mágicas que ascienden desde el horizonte */
 .embers {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: -1;
   pointer-events: none;
 }
 .embers i {
@@ -145,11 +155,11 @@ html {
   opacity: 0;
 }
 
-/* Viñeta mágica que enmarca la escena */
+/* Viñeta mágica que enmarca la escena (por encima del contenido) */
 .vignette {
   position: fixed;
   inset: 0;
-  z-index: 5;
+  z-index: 30;
   pointer-events: none;
   background:
     radial-gradient(115% 100% at 50% 42%, transparent 62%, rgba(6, 4, 14, 0.5) 100%),
