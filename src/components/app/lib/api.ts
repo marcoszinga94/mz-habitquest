@@ -30,6 +30,7 @@ export interface UserData {
   email: string;
   username: string;
   avatarEmoji: string;
+  avatarPhoto: string | null;
   xp: number;
   lives: number;
   lang: string;

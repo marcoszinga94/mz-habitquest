@@ -5,13 +5,11 @@ import { useI18n } from '../lib/i18n';
 export function DashboardView({
   data,
   onCheckin,
-  onNavigate,
   onReminders,
   notifPermission,
 }: {
   data: DashboardData;
   onCheckin: (habit: HabitData, done: boolean) => void;
-  onNavigate: (v: 'habits' | 'retos') => void;
   onReminders: () => void;
   notifPermission: NotificationPermission;
 }) {
@@ -23,8 +21,12 @@ export function DashboardView({
   return (
     <div className="flex flex-col gap-4">
       <section className="panel p-4 flex items-center gap-4">
-        <div className="text-5xl avatar-glow rounded-xl bg-indigo-950/60 p-2 w-20 h-20 flex items-center justify-center">
-          {user.avatarEmoji}
+        <div className="avatar-glow rounded-xl bg-indigo-950/60 p-2 w-20 h-20 flex items-center justify-center overflow-hidden">
+          {user.avatarPhoto ? (
+            <img src={user.avatarPhoto} alt={user.username} className="w-full h-full object-cover rounded-lg" />
+          ) : (
+            <span className="text-5xl">{user.avatarEmoji}</span>
+          )}
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
@@ -82,9 +84,9 @@ export function DashboardView({
       <section className="panel p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold">{t('habits.title')}</h3>
-          <button className="text-xs text-indigo-300 hover:underline" onClick={() => onNavigate('habits')}>
+          <a href="/app/habits" className="text-xs text-indigo-300 hover:underline">
             →
-          </button>
+          </a>
         </div>
         {data.habits.length === 0 ? (
           <div className="text-sm text-slate-400 text-center py-6">{t('habits.empty')}</div>
@@ -119,9 +121,9 @@ export function DashboardView({
       <section className="panel p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold">{t('retos.title')}</h3>
-          <button className="text-xs text-indigo-300 hover:underline" onClick={() => onNavigate('retos')}>
+          <a href="/app/retos" className="text-xs text-indigo-300 hover:underline">
             →
-          </button>
+          </a>
         </div>
         {data.retos.length === 0 ? (
           <div className="text-sm text-slate-400 text-center py-6">{t('retos.empty')}</div>

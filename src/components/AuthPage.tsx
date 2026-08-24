@@ -46,7 +46,7 @@ function AuthPageInner({ mode }: { mode: 'login' | 'register' }) {
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
           <div className="text-5xl mb-2">⚔️</div>
-          <h1 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">
+          <h1 className="text-2xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-indigo-300 to-emerald-300">
             {t('app.title')}
           </h1>
         </div>

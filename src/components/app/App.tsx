@@ -7,11 +7,10 @@ import {
   Medal,
   Swords,
   CheckCircle2,
-  Trophy,
   User,
   X,
 } from 'lucide-react';
-import { api, type DashboardData, type HabitData, type RetoData } from './lib/api';
+import { api, type DashboardData, type HabitData } from './lib/api';
 import { I18nProvider, useI18n } from './lib/i18n';
 import { DashboardView } from './views/DashboardView';
 import { HabitsView } from './views/HabitsView';
@@ -19,7 +18,7 @@ import { RetosView } from './views/RetosView';
 import { AchievementsView } from './views/AchievementsView';
 import { ProfileView } from './views/ProfileView';
 
-type View = 'dashboard' | 'habits' | 'retos' | 'achievements' | 'profile';
+export type View = 'dashboard' | 'habits' | 'retos' | 'achievements' | 'profile';
 
 interface Toast {
   id: number;
@@ -30,10 +29,17 @@ interface Toast {
 
 let toastId = 0;
 
-function AppInner() {
+const NAV_ITEMS: { key: View; href: string; labelKey: string; icon: React.ReactNode }[] = [
+  { key: 'dashboard', href: '/app', labelKey: 'nav.dashboard', icon: <LayoutDashboard size={18} /> },
+  { key: 'habits', href: '/app/habits', labelKey: 'nav.habits', icon: <CheckCircle2 size={18} /> },
+  { key: 'retos', href: '/app/retos', labelKey: 'nav.retos', icon: <Swords size={18} /> },
+  { key: 'achievements', href: '/app/logros', labelKey: 'nav.achievements', icon: <Medal size={18} /> },
+  { key: 'profile', href: '/app/perfil', labelKey: 'nav.profile', icon: <User size={18} /> },
+];
+
+function AppInner({ view }: { view: View }) {
   const { t, lang, setLang } = useI18n();
   const [data, setData] = useState<DashboardData | null>(null);
-  const [view, setView] = useState<View>('dashboard');
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifPermission, setNotifPermission] = useState<NotificationPermission>('default');
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -120,8 +126,9 @@ function AppInner() {
           body: r.levelUp ? t('habits.level_up', { level: r.newLevel }) : undefined,
         });
         if (r.unlocked.length > 0) {
-          const defs = r.unlocked.map((u) => ({ key: u.key, icon: '🏆' }));
-          for (const d of defs) pushToast({ icon: 'achievement', title: t(d.key), body: t('achievements.title') });
+          for (const d of r.unlocked) {
+            pushToast({ icon: 'achievement', title: t(d.key), body: t('achievements.title') });
+          }
         }
       }
       await load();
@@ -132,13 +139,13 @@ function AppInner() {
   const handleHabitSaved = useCallback(() => load(), [load]);
   const handleRetoCreated = useCallback(async () => {
     await load();
-    setView('retos');
+    window.location.href = '/app/retos';
   }, [load]);
   const handleRetoJoined = useCallback(async () => {
     await load();
-    setView('retos');
+    window.location.href = '/app/retos';
   }, [load]);
-  const handleRetoUpdated = useCallback(async (r?: RetoData) => {
+  const handleRetoUpdated = useCallback(async () => {
     await load();
   }, [load]);
 
@@ -150,23 +157,17 @@ function AppInner() {
     );
   }
 
-  const navItems: { key: View; label: string; icon: React.ReactNode }[] = [
-    { key: 'dashboard', label: t('nav.dashboard'), icon: <LayoutDashboard size={18} /> },
-    { key: 'habits', label: t('nav.habits'), icon: <CheckCircle2 size={18} /> },
-    { key: 'retos', label: t('nav.retos'), icon: <Swords size={18} /> },
-    { key: 'achievements', label: t('nav.achievements'), icon: <Medal size={18} /> },
-    { key: 'profile', label: t('nav.profile'), icon: <User size={18} /> },
-  ];
-
   const unread = data.stats.unreadNotifications;
 
   return (
     <div className="min-h-screen max-w-3xl mx-auto px-4 pb-16">
       <header className="flex items-center gap-3 py-4 border-b-2 border-slate-800">
-        <div className="text-2xl">⚔️</div>
-        <h1 className="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">
-          {t('app.title')}
-        </h1>
+        <a href="/app" className="flex items-center gap-3">
+          <div className="text-2xl">⚔️</div>
+          <h1 className="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-emerald-300">
+            {t('app.title')}
+          </h1>
+        </a>
         <div className="ml-auto flex items-center gap-1">
           <div className="relative">
             <button
@@ -214,7 +215,9 @@ function AppInner() {
       </header>
 
       <main className="mt-5">
-        {view === 'dashboard' && <DashboardView data={data} onCheckin={handleCheckin} onNavigate={setView} onReminders={askReminders} notifPermission={notifPermission} />}
+        {view === 'dashboard' && (
+          <DashboardView data={data} onCheckin={handleCheckin} onReminders={askReminders} notifPermission={notifPermission} />
+        )}
         {view === 'habits' && <HabitsView data={data} onCheckin={handleCheckin} onSaved={handleHabitSaved} />}
         {view === 'retos' && (
           <RetosView
@@ -231,17 +234,17 @@ function AppInner() {
 
       <nav className="fixed bottom-0 inset-x-0 bg-[#0b0e1a] border-t-2 border-slate-800">
         <div className="max-w-3xl mx-auto grid grid-cols-5">
-          {navItems.map((item) => (
-            <button
+          {NAV_ITEMS.map((item) => (
+            <a
               key={item.key}
-              onClick={() => setView(item.key)}
+              href={item.href}
               className={`flex flex-col items-center gap-0.5 py-2.5 text-xs font-semibold transition-colors ${
                 view === item.key ? 'text-indigo-300' : 'text-slate-500 hover:text-slate-300'
               }`}
             >
               {item.icon}
-              {item.label}
-            </button>
+              {t(item.labelKey)}
+            </a>
           ))}
         </div>
       </nav>
@@ -308,10 +311,10 @@ function NotificationsPopover({
   );
 }
 
-export default function App() {
+export default function AppShell({ view }: { view: View }) {
   return (
     <I18nProvider>
-      <AppInner />
+      <AppInner view={view} />
     </I18nProvider>
   );
 }

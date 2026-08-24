@@ -14,6 +14,12 @@ const patchSchema = z
   .object({
     username: z.string().min(2).max(40).optional(),
     avatarEmoji: z.string().min(1).max(8).optional(),
+    avatarPhoto: z
+      .string()
+      .max(400_000)
+      .regex(/^data:image\/(png|jpe?g|webp);base64,/)
+      .optional(),
+    removePhoto: z.boolean().optional(),
     lang: z.enum(['es', 'en']).optional(),
     currentPassword: z.string().min(1).max(100).optional(),
     newPassword: z.string().min(6).max(100).optional(),
@@ -23,12 +29,13 @@ const patchSchema = z
     message: 'password_pair',
   });
 
-function publicUser(user: { id: string; email: string; username: string; avatarEmoji: string; xp: number; lives: number; lang: string }) {
+function publicUser(user: { id: string; email: string; username: string; avatarEmoji: string; avatarPhoto: string | null; xp: number; lives: number; lang: string }) {
   return {
     id: user.id,
     email: user.email,
     username: user.username,
     avatarEmoji: user.avatarEmoji,
+    avatarPhoto: user.avatarPhoto,
     xp: user.xp,
     lives: user.lives,
     lang: user.lang,
@@ -64,6 +71,8 @@ export const PATCH: APIRoute = async ({ request }) => {
   const updates: Record<string, unknown> = {};
   if (data.username) updates.username = data.username;
   if (data.avatarEmoji) updates.avatarEmoji = data.avatarEmoji;
+  if (data.removePhoto) updates.avatarPhoto = null;
+  else if (data.avatarPhoto) updates.avatarPhoto = data.avatarPhoto;
   if (data.lang) updates.lang = data.lang;
   if (data.newPassword) updates.passwordHash = await hashPassword(data.newPassword);
 

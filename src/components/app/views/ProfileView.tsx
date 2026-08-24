@@ -1,9 +1,32 @@
-import { useState } from 'react';
-import { Heart, KeyRound, Medal, ShieldCheck, Trophy, Zap } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Heart, ImagePlus, KeyRound, Trash2, Zap } from 'lucide-react';
 import { api, type DashboardData } from '../lib/api';
 import { useI18n, type Lang } from '../lib/i18n';
 
 const AVATARS = ['🧙', '🦸', '🧝', '🧛', '🐉', '🦄', '🐺', '🦊', '🐱', '🦁', '🤖', '👽', '💪', '🔥'];
+
+function resizeImage(file: File, max = 256): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return reject(new Error('canvas'));
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = () => reject(new Error('image'));
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error('read'));
+    reader.readAsDataURL(file);
+  });
+}
 
 export function ProfileView({
   data,
@@ -18,10 +41,29 @@ export function ProfileView({
   const { user } = data;
   const [username, setUsername] = useState(user.username);
   const [avatar, setAvatar] = useState(user.avatarEmoji);
-  const [formLang, setFormLang] = useState<Lang>(user.lang as Lang);
+  const [photo, setPhoto] = useState(user.avatarPhoto ?? '');
+  const [removePhoto, setRemovePhoto] = useState(false);
+  const [formLang, setFormLang] = useState<Lang>((user.lang as Lang) ?? 'es');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [busy, setBusy] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      pushToast({ title: t('profile.photoTooBig') });
+      return;
+    }
+    try {
+      const dataUrl = await resizeImage(file);
+      setPhoto(dataUrl);
+      setRemovePhoto(false);
+    } catch {
+      pushToast({ title: t('profile.error') });
+    }
+  };
 
   const stats = {
     totalCompletions: data.habits.reduce((s, h) => s + h.totalCompletions, 0),
@@ -37,6 +79,8 @@ export function ProfileView({
       const body: Record<string, unknown> = {};
       if (username !== user.username) body.username = username;
       if (avatar !== user.avatarEmoji) body.avatarEmoji = avatar;
+      if (removePhoto) body.removePhoto = true;
+      else if (photo && photo !== user.avatarPhoto) body.avatarPhoto = photo;
       if (formLang !== user.lang) body.lang = formLang;
       if (currentPassword && newPassword) {
         body.currentPassword = currentPassword;
@@ -70,8 +114,12 @@ export function ProfileView({
       <h2 className="text-lg font-extrabold">{t('profile.title')}</h2>
 
       <section className="panel p-4 flex items-center gap-4">
-        <div className="text-5xl avatar-glow rounded-xl bg-indigo-950/60 p-2 w-20 h-20 flex items-center justify-center">
-          {avatar}
+        <div className="avatar-glow rounded-xl bg-indigo-950/60 p-2 w-20 h-20 flex items-center justify-center overflow-hidden">
+          {photo ? (
+            <img src={photo} alt={username} className="w-full h-full object-cover rounded-lg" />
+          ) : (
+            <span className="text-5xl">{avatar}</span>
+          )}
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
@@ -125,6 +173,28 @@ export function ProfileView({
 
           <div className="flex flex-col gap-2 text-sm">
             <span>{t('profile.avatar')}</span>
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-16 rounded-xl bg-indigo-950/60 border-2 border-slate-700 flex items-center justify-center overflow-hidden">
+                {photo ? (
+                  <img src={photo} alt={username} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-3xl">{avatar}</span>
+                )}
+              </div>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
+              <button className="btn btn-ghost flex-1 py-2 inline-flex items-center justify-center gap-2" onClick={() => fileRef.current?.click()}>
+                <ImagePlus size={16} /> {t('profile.uploadPhoto')}
+              </button>
+              {photo && (
+                <button className="btn btn-danger flex-1 py-2 inline-flex items-center justify-center gap-2" onClick={() => { setPhoto(''); setRemovePhoto(true); }}>
+                  <Trash2 size={16} /> {t('profile.removePhoto')}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1 text-sm">
+            <span>{t('profile.avatarEmoji')}</span>
             <div className="grid grid-cols-7 gap-2">
               {AVATARS.map((a) => (
                 <button

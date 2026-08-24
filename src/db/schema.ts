@@ -18,6 +18,7 @@ export const users = pgTable('users', {
   username: varchar('username', { length: 40 }).notNull(),
   passwordHash: text('password_hash').notNull(),
   avatarEmoji: varchar('avatar_emoji', { length: 8 }).notNull().default('🧙'),
+  avatarPhoto: text('avatar_photo'),
   xp: integer('xp').notNull().default(0),
   lives: integer('lives').notNull().default(5),
   lang: varchar('lang', { length: 2 }).notNull().default('es'),
