@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { and, desc, eq, gte } from 'drizzle-orm';
 import { getDb } from '../../db';
-import { achievements, checkins, habits, notifications, retoParticipants, retos } from '../../db/schema';
+import { achievements, checkins, habits, notifications, retoCheckins, retoParticipants, retos } from '../../db/schema';
 import { json, requireUser } from '../../lib/http';
 import { ACHIEVEMENTS, addDays, levelProgress, toDateKey } from '../../lib/game';
 import { computeHabitStats } from '../../lib/engine';
@@ -16,7 +16,7 @@ export const GET: APIRoute = async ({ request }) => {
   const today = toDateKey(new Date());
   const since = addDays(today, -45);
 
-  const [habitRows, checkinRows, achRows, notifRows, retoRows, participantRows] = await Promise.all([
+  const [habitRows, checkinRows, achRows, notifRows, retoRows, participantRows, retoCheckinRows] = await Promise.all([
     db.select().from(habits).where(and(eq(habits.userId, user.id), eq(habits.archived, false))),
     db.select().from(checkins).where(and(eq(checkins.userId, user.id), gte(checkins.day, since))),
     db.select().from(achievements).where(eq(achievements.userId, user.id)),
@@ -28,6 +28,7 @@ export const GET: APIRoute = async ({ request }) => {
       .limit(30),
     db.select().from(retos).orderBy(desc(retos.createdAt)).limit(50),
     db.select().from(retoParticipants).where(eq(retoParticipants.userId, user.id)),
+    db.select().from(retoCheckins).where(and(eq(retoCheckins.userId, user.id), eq(retoCheckins.day, today))),
   ]);
 
   const byHabit = new Map<string, string[]>();
@@ -58,6 +59,7 @@ export const GET: APIRoute = async ({ request }) => {
   });
 
   const myRetoIds = new Set(participantRows.map((p) => p.retoId));
+  const checkedTodayRetos = new Set(retoCheckinRows.map((c) => c.retoId));
   const retosData = retoRows
     .filter((r) => myRetoIds.has(r.id))
     .map((r) => {
@@ -77,6 +79,7 @@ export const GET: APIRoute = async ({ request }) => {
         winnerId: r.winnerId,
         isCreator: r.creatorId === user.id,
         myProgress: p?.progress ?? 0,
+        checkedToday: checkedTodayRetos.has(r.id),
         prizeFulfilled: p?.prizeFulfilled ?? false,
         prizeConfirmed: p?.prizeConfirmed ?? false,
       };

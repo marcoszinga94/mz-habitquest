@@ -120,6 +120,12 @@ function RetoCard({
     onUpdated();
   };
 
+  const toggleCheckin = async () => {
+    const method = reto.checkedToday ? 'DELETE' : 'POST';
+    await api(`/api/retos/${reto.id}/checkin`, { method });
+    onUpdated();
+  };
+
   const ends = new Date(reto.endsAt).toLocaleDateString();
 
   return (
@@ -158,6 +164,15 @@ function RetoCard({
           <div className="bar-fill-gold" style={{ width: `${pct}%` }} />
         </div>
       </div>
+
+      {reto.status === 'active' && (
+        <button
+          onClick={toggleCheckin}
+          className={`btn py-2 text-sm ${reto.checkedToday ? 'btn-gold' : 'btn-primary'}`}
+        >
+          {reto.checkedToday ? t('retos.checkedin') : t('retos.checkin')}
+        </button>
+      )}
 
       {reto.status === 'active' && (
         <div className="flex items-center gap-2 bg-slate-900/60 rounded-lg p-2">

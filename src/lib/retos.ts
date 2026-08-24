@@ -1,6 +1,6 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
 import type { Db } from '../db';
-import { checkins, notifications, retoParticipants, retos } from '../db/schema';
+import { notifications, retoCheckins, retoParticipants, retos } from '../db/schema';
 import type { Reto, User } from '../db/schema';
 import { activeStreakInWindow, addDays, completionsInWindow, resolveReto, toDateKey } from './game';
 
@@ -14,15 +14,57 @@ export async function computeRetoProgress(
     reto.endsAt.getTime() < Date.now() ? reto.endsAt : new Date(),
   );
   const rows = await db
-    .select({ day: checkins.day })
-    .from(checkins)
-    .where(and(eq(checkins.userId, userId), gte(checkins.day, start), lte(checkins.day, end)));
+    .select({ day: retoCheckins.day })
+    .from(retoCheckins)
+    .where(
+      and(
+        eq(retoCheckins.retoId, reto.id),
+        eq(retoCheckins.userId, userId),
+        gte(retoCheckins.day, start),
+        lte(retoCheckins.day, end),
+      ),
+    );
   const days = rows.map((r) => r.day);
 
   if (reto.goalType === 'streak_days') {
     return Math.min(activeStreakInWindow(days, start, end), reto.goalTarget);
   }
   return Math.min(completionsInWindow(days, start, end), reto.goalTarget);
+}
+
+export async function retoCheckedToday(
+  db: Db,
+  retoId: string,
+  userId: string,
+  day: string,
+): Promise<boolean> {
+  const rows = await db
+    .select({ id: retoCheckins.id })
+    .from(retoCheckins)
+    .where(
+      and(
+        eq(retoCheckins.retoId, retoId),
+        eq(retoCheckins.userId, userId),
+        eq(retoCheckins.day, day),
+      ),
+    );
+  return rows.length > 0;
+}
+
+export async function checkinReto(db: Db, retoId: string, userId: string, day: string): Promise<void> {
+  await db.insert(retoCheckins).values({ retoId, userId, day });
+}
+
+export async function uncheckinReto(db: Db, retoId: string, userId: string, day: string): Promise<void> {
+  await db
+    .delete(retoCheckins)
+    .where(
+      and(
+        eq(retoCheckins.retoId, retoId),
+        eq(retoCheckins.userId, userId),
+        eq(retoCheckins.day, day),
+      ),
+    );
 }
 
 export async function refreshRetoProgress(db: Db, reto: Reto): Promise<void> {

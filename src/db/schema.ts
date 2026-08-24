@@ -119,6 +119,26 @@ export const retoParticipants = pgTable(
   (t) => [uniqueIndex('reto_participant_unique_idx').on(t.retoId, t.userId)],
 );
 
+export const retoCheckins = pgTable(
+  'reto_checkins',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    retoId: uuid('reto_id')
+      .notNull()
+      .references(() => retos.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    day: date('day').notNull(), // YYYY-MM-DD
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('reto_checkins_reto_idx').on(t.retoId),
+    index('reto_checkins_user_idx').on(t.userId),
+    uniqueIndex('reto_checkin_unique_idx').on(t.retoId, t.userId, t.day),
+  ],
+);
+
 export const notifications = pgTable('notifications', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id')
@@ -146,6 +166,7 @@ export const habitsRelations = relations(habits, ({ one, many }) => ({
 export const retosRelations = relations(retos, ({ one, many }) => ({
   creator: one(users, { fields: [retos.creatorId], references: [users.id] }),
   participants: many(retoParticipants),
+  checkins: many(retoCheckins),
   winner: one(users, { fields: [retos.winnerId], references: [users.id] }),
 }));
 

@@ -78,6 +78,7 @@ export interface RetoData {
   winnerId: string | null;
   isCreator: boolean;
   myProgress: number;
+  checkedToday: boolean;
   prizeFulfilled: boolean;
   prizeConfirmed: boolean;
 }
