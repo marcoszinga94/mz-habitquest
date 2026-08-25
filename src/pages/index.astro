@@ -18,10 +18,10 @@ if (authed) return Astro.redirect('/app');
 
 <Layout title="HabitQuest — Hábitos RPG">
   <div class="min-h-screen flex items-center px-4 py-10">
-    <section class="max-w-6xl w-full mx-auto grid gap-3 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[minmax(120px,auto)] lg:auto-rows-fr lg:h-[880px]">
+    <section class="bento-scene max-w-6xl w-full mx-auto grid gap-3 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[minmax(120px,auto)] lg:auto-rows-fr lg:h-[880px]">
 
       <!-- Marca / nombre del sistema -->
-      <div class="panel p-6 lg:col-span-4 sm:col-span-2 flex flex-col sm:flex-row items-center justify-between gap-5 text-center sm:text-left">
+      <div class="bento-card panel p-6 lg:col-span-4 sm:col-span-2 flex flex-col sm:flex-row items-center justify-between gap-5 text-center sm:text-left">
         <div class="text-6xl sword-glow shrink-0">⚔️</div>
         <div class="flex-1">
           <h1 class="text-4xl sm:text-5xl font-extrabold gold-text leading-tight">
@@ -39,9 +39,9 @@ if (authed) return Astro.redirect('/app');
       </div>
 
       <!-- Nivel / XP -->
-      <div class="panel p-5 lg:col-span-2 lg:row-span-2 flex flex-col justify-between gap-3">
+      <div class="bento-card panel p-5 lg:col-span-2 lg:row-span-2 flex flex-col justify-between gap-3">
         <div class="flex items-center gap-3">
-          <span class="text-4xl">📈</span>
+          <span class="bento-pop text-4xl">📈</span>
           <div>
             <div class="font-bold text-lg">Sube de nivel</div>
             <div class="text-sm text-slate-400">Cada misión completada otorga XP</div>
@@ -61,8 +61,8 @@ if (authed) return Astro.redirect('/app');
       </div>
 
       <!-- Rachas -->
-      <div class="panel p-4 flex flex-col justify-between gap-1">
-        <span class="text-3xl">🔥</span>
+      <div class="bento-card panel p-4 flex flex-col justify-between gap-1">
+        <span class="bento-pop text-3xl">🔥</span>
         <div>
           <div class="font-bold">Rachas épicas</div>
           <div class="text-sm text-slate-400">No rompas la cadena.</div>
@@ -71,9 +71,9 @@ if (authed) return Astro.redirect('/app');
       </div>
 
       <!-- Logros -->
-      <div class="panel p-4 lg:row-span-2 flex flex-col justify-between gap-2">
+      <div class="bento-card panel p-4 lg:row-span-2 flex flex-col justify-between gap-2">
         <div class="flex items-center gap-2">
-          <span class="text-2xl">🏆</span>
+          <span class="bento-pop text-2xl">🏆</span>
           <div class="font-bold">Logros</div>
         </div>
         <div class="flex flex-col gap-1.5">
@@ -94,8 +94,8 @@ if (authed) return Astro.redirect('/app');
       </div>
 
       <!-- Recordatorios -->
-      <div class="panel p-4 flex flex-col justify-between gap-1">
-        <span class="text-3xl">⏰</span>
+      <div class="bento-card panel p-4 flex flex-col justify-between gap-1">
+        <span class="bento-pop text-3xl">⏰</span>
         <div>
           <div class="font-bold">Recordatorios</div>
           <div class="text-sm text-slate-400">Notificaciones push a la hora exacta.</div>
@@ -103,9 +103,9 @@ if (authed) return Astro.redirect('/app');
       </div>
 
       <!-- Retos -->
-      <div class="panel p-5 lg:col-span-2 flex flex-col justify-between gap-3">
+      <div class="bento-card panel p-5 lg:col-span-2 flex flex-col justify-between gap-3">
         <div class="flex items-center gap-3">
-          <span class="text-4xl">⚔️</span>
+          <span class="bento-pop text-4xl">⚔️</span>
           <div>
             <div class="font-bold text-lg">Retos con amigos</div>
             <div class="text-sm text-slate-400">Compite por rachas y metas reales</div>
@@ -127,8 +127,8 @@ if (authed) return Astro.redirect('/app');
       </div>
 
       <!-- Apuestas -->
-      <div class="panel p-4 flex flex-col justify-between gap-1">
-        <span class="text-3xl">☕</span>
+      <div class="bento-card panel p-4 flex flex-col justify-between gap-1">
+        <span class="bento-pop text-3xl">☕</span>
         <div>
           <div class="font-bold">Apuestas reales</div>
           <div class="text-sm text-slate-400">El perdedor invita el café. Sin excusas.</div>
@@ -136,8 +136,8 @@ if (authed) return Astro.redirect('/app');
       </div>
 
       <!-- Ranking -->
-      <div class="panel p-4 flex flex-col justify-between gap-1">
-        <span class="text-3xl">🥇</span>
+      <div class="bento-card panel p-4 flex flex-col justify-between gap-1">
+        <span class="bento-pop text-3xl">🥇</span>
         <div>
           <div class="font-bold">Ranking</div>
           <div class="text-sm text-slate-400">Sigue el progreso de todos en vivo.</div>
@@ -145,9 +145,9 @@ if (authed) return Astro.redirect('/app');
       </div>
 
       <!-- Estadísticas -->
-      <div class="panel p-5 lg:col-span-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="bento-card panel p-5 lg:col-span-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <span class="text-4xl">📊</span>
+          <span class="bento-pop text-4xl">📊</span>
           <div>
             <div class="font-bold text-lg">Estadísticas</div>
             <div class="text-sm text-slate-400">Tu aventura resumida en un vistazo</div>
@@ -171,4 +171,55 @@ if (authed) return Astro.redirect('/app');
 
     </section>
   </div>
+
+  <style>
+    .bento-scene {
+      perspective: 1400px;
+    }
+    .bento-card {
+      transform-style: preserve-3d;
+      transform: perspective(1200px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--ty, 0px));
+      transition: transform 0.18s ease-out, box-shadow 0.18s ease;
+      will-change: transform;
+    }
+    .bento-card:hover {
+      --ty: -8px;
+      z-index: 20;
+    }
+    .bento-card .bento-pop {
+      display: inline-block;
+      transform: translateZ(0px) scale(1);
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .bento-card:hover .bento-pop {
+      transform: translateZ(70px) scale(1.35);
+      animation: bentoFloat 2.2s ease-in-out infinite;
+    }
+    @keyframes bentoFloat {
+      0%, 100% { transform: translateZ(70px) scale(1.35) translateY(0); }
+      50% { transform: translateZ(70px) scale(1.35) translateY(-7px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bento-card:hover .bento-pop {
+        animation: none;
+      }
+    }
+  </style>
+
+  <script>
+    const cards = document.querySelectorAll('.bento-card');
+    cards.forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.setProperty('--rx', `${(-py * 8).toFixed(2)}deg`);
+        card.style.setProperty('--ry', `${(px * 8).toFixed(2)}deg`);
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--rx', '0deg');
+        card.style.setProperty('--ry', '0deg');
+      });
+    });
+  </script>
 </Layout>
