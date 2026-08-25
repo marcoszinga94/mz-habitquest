@@ -4,7 +4,6 @@ import { getSessionToken, verifySessionToken } from '../lib/auth';
 import { getDb } from '../db';
 import { users } from '../db/schema';
 import { eq } from 'drizzle-orm';
-import { levelProgress } from '../lib/game';
 
 const token = getSessionToken(Astro.request);
 const session = token ? await verifySessionToken(token) : null;
@@ -18,35 +17,164 @@ if (authed) return Astro.redirect('/app');
 ---
 
 <Layout title="HabitQuest — Hábitos RPG">
-  <div class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
-    <div class="text-6xl mb-4">⚔️</div>
-    <h1 class="text-4xl font-extrabold gold-text mb-3">
-      HabitQuest
-    </h1>
-    <p class="text-slate-300 max-w-md mb-8">
-      Convierte tus hábitos en una aventura RPG. Sube de nivel, desbloquea logros
-      y reta a tus amigos con apuestas que se cumplen de verdad.
-    </p>
-    <div class="flex gap-3">
-      <a href="/register" class="btn btn-gold px-6 py-3 text-lg">⚔️ Comenzar</a>
-      <a href="/login" class="btn btn-ghost px-6 py-3 text-lg">Entrar</a>
-    </div>
-    <div class="mt-12 grid sm:grid-cols-3 gap-4 max-w-2xl">
-      <div class="panel p-4">
-        <div class="text-3xl mb-1">📈</div>
-        <div class="font-bold">Hábitos + XP</div>
-        <div class="text-sm text-slate-400">Gana experiencia por cada misión completada.</div>
-      </div>
-      <div class="panel p-4">
-        <div class="text-3xl mb-1">⚔️</div>
-        <div class="font-bold">Retos con amigos</div>
-        <div class="text-sm text-slate-400">Comparte un código y compite por una apuesta real.</div>
-      </div>
-      <div class="panel p-4">
-        <div class="text-3xl mb-1">🏆</div>
-        <div class="font-bold">Logros</div>
-        <div class="text-sm text-slate-400">Desbloquea insignias con tus rachas y niveles.</div>
-      </div>
+  <div class="min-h-screen flex flex-col px-4 py-10">
+    <div class="max-w-6xl w-full mx-auto flex flex-col gap-10">
+
+      <!-- Hero -->
+      <header class="flex flex-col items-center text-center gap-4 pt-6">
+        <div class="text-6xl sword-glow">⚔️</div>
+        <h1 class="text-5xl sm:text-6xl font-extrabold gold-text leading-tight">
+          HabitQuest
+        </h1>
+        <p class="text-slate-300 max-w-xl text-lg">
+          Convierte tus hábitos en una aventura RPG. Sube de nivel, desbloquea
+          logros y reta a tus amigos con apuestas que se cumplen de verdad.
+        </p>
+        <div class="flex gap-3 mt-2">
+          <a href="/register" class="btn btn-gold px-6 py-3 text-lg">⚔️ Comenzar</a>
+          <a href="/login" class="btn btn-ghost px-6 py-3 text-lg">Entrar</a>
+        </div>
+      </header>
+
+      <!-- Bento grid -->
+      <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[minmax(120px,auto)]">
+
+        <!-- Nivel / XP -->
+        <div class="panel p-5 lg:col-span-2 lg:row-span-2 flex flex-col gap-3">
+          <div class="flex items-center gap-3">
+            <span class="text-4xl">📈</span>
+            <div>
+              <div class="font-bold text-lg">Sube de nivel</div>
+              <div class="text-sm text-slate-400">Cada misión completada otorga XP</div>
+            </div>
+          </div>
+          <div class="flex items-end gap-3 mt-auto">
+            <div class="w-14 h-14 rounded-full bg-indigo-950 border-2 border-amber-400 flex items-center justify-center text-xl avatar-glow">🧙</div>
+            <div class="flex-1">
+              <div class="flex justify-between text-xs text-slate-400 mb-1">
+                <span class="font-bold text-amber-300">Nivel 7</span>
+                <span>180 / 240 XP</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" style="width: 75%"></div></div>
+            </div>
+          </div>
+          <div class="text-xs text-slate-500">+50 XP al cumplir un día · +30 por racha de 7 🔥</div>
+        </div>
+
+        <!-- Rachas -->
+        <div class="panel p-4 flex flex-col justify-center gap-1">
+          <span class="text-3xl">🔥</span>
+          <div class="font-bold">Rachas épicas</div>
+          <div class="text-sm text-slate-400">No rompas la cadena.</div>
+          <div class="text-amber-300 text-xl font-extrabold mt-1">12 días</div>
+        </div>
+
+        <!-- Logros -->
+        <div class="panel p-4 lg:row-span-2 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🏆</span>
+            <div class="font-bold">Logros</div>
+          </div>
+          <div class="flex flex-col gap-1.5 mt-1">
+            <div class="flex items-center gap-2 rounded bg-slate-900/60 px-2 py-1.5 text-sm">
+              <span>🥇</span><span class="flex-1">Primer paso</span><span class="text-xs text-emerald-400">✓</span>
+            </div>
+            <div class="flex items-center gap-2 rounded bg-slate-900/60 px-2 py-1.5 text-sm">
+              <span>🔥</span><span class="flex-1">Racha de 7</span><span class="text-xs text-emerald-400">✓</span>
+            </div>
+            <div class="flex items-center gap-2 rounded bg-slate-900/60 px-2 py-1.5 text-sm opacity-50">
+              <span>⚡</span><span class="flex-1">Nivel 10</span><span class="text-xs text-slate-500">🔒</span>
+            </div>
+            <div class="flex items-center gap-2 rounded bg-slate-900/60 px-2 py-1.5 text-sm opacity-50">
+              <span>👑</span><span class="flex-1">Ganar un reto</span><span class="text-xs text-slate-500">🔒</span>
+            </div>
+          </div>
+          <div class="text-xs text-slate-500 mt-auto">Cada logro desbloquea una insignia y XP extra</div>
+        </div>
+
+        <!-- Recordatorios -->
+        <div class="panel p-4 flex flex-col justify-center gap-1">
+          <span class="text-3xl">⏰</span>
+          <div class="font-bold">Recordatorios</div>
+          <div class="text-sm text-slate-400">Notificaciones push a la hora exacta.</div>
+        </div>
+
+        <!-- Retos -->
+        <div class="panel p-5 lg:col-span-2 flex flex-col gap-3">
+          <div class="flex items-center gap-3">
+            <span class="text-4xl">⚔️</span>
+            <div>
+              <div class="font-bold text-lg">Retos con amigos</div>
+              <div class="text-sm text-slate-400">Compite por rachas y metas reales</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 bg-slate-900/60 rounded-lg p-2.5">
+            <span class="text-xs text-slate-400">Únete con el código</span>
+            <span class="font-mono font-bold text-sm bg-indigo-900/50 px-2 py-0.5 rounded tracking-widest">GYM2026</span>
+            <span class="ml-auto text-xs text-emerald-400">3 aventureros ⚔️</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex -space-x-2">
+              <span class="w-8 h-8 rounded-full bg-indigo-950 border border-slate-600 flex items-center justify-center text-sm">🧙</span>
+              <span class="w-8 h-8 rounded-full bg-indigo-950 border border-slate-600 flex items-center justify-center text-sm">🏹</span>
+              <span class="w-8 h-8 rounded-full bg-indigo-950 border border-slate-600 flex items-center justify-center text-sm">🛡️</span>
+            </div>
+            <div class="text-xs text-slate-500">Invita a tus amigos o comparte el código</div>
+          </div>
+        </div>
+
+        <!-- Apuestas -->
+        <div class="panel p-4 flex flex-col justify-center gap-1">
+          <span class="text-3xl">☕</span>
+          <div class="font-bold">Apuestas reales</div>
+          <div class="text-sm text-slate-400">El perdedor invita el café. Sin excusas.</div>
+        </div>
+
+        <!-- Ranking -->
+        <div class="panel p-4 flex flex-col justify-center gap-1">
+          <span class="text-3xl">🥇</span>
+          <div class="font-bold">Ranking</div>
+          <div class="text-sm text-slate-400">Sigue el progreso de todos en vivo.</div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="panel p-5 lg:col-span-2 flex flex-col gap-3">
+          <div class="flex items-center gap-3">
+            <span class="text-4xl">📊</span>
+            <div>
+              <div class="font-bold text-lg">Estadísticas</div>
+              <div class="text-sm text-slate-400">Tu aventura resumida en un vistazo</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="rounded-lg bg-slate-900/60 py-2">
+              <div class="text-xl font-extrabold text-amber-300">94</div>
+              <div class="text-[11px] text-slate-400">XP total</div>
+            </div>
+            <div class="rounded-lg bg-slate-900/60 py-2">
+              <div class="text-xl font-extrabold text-amber-300">12</div>
+              <div class="text-[11px] text-slate-400">Racha</div>
+            </div>
+            <div class="rounded-lg bg-slate-900/60 py-2">
+              <div class="text-xl font-extrabold text-amber-300">3</div>
+              <div class="text-[11px] text-slate-400">Logros</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA final -->
+        <div class="panel p-6 lg:col-span-4 flex flex-col sm:flex-row items-center gap-4 justify-between">
+          <div>
+            <div class="font-bold text-xl">Tu próxima misión comienza hoy</div>
+            <div class="text-sm text-slate-400">Crea tu cuenta gratis y empieza a ganar XP.</div>
+          </div>
+          <div class="flex gap-3">
+            <a href="/register" class="btn btn-gold px-6 py-3">⚔️ Comenzar</a>
+            <a href="/login" class="btn btn-ghost px-6 py-3">Entrar</a>
+          </div>
+        </div>
+
+      </section>
     </div>
   </div>
 </Layout>

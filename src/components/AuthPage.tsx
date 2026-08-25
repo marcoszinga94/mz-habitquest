@@ -44,6 +44,11 @@ function AuthPageInner({ mode }: { mode: 'login' | 'register' }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
+        <div className="mb-4 flex justify-center">
+          <a href="/" className="btn btn-ghost px-4 py-2 text-xs flex items-center gap-1.5">
+            ← {t('auth.backHome')}
+          </a>
+        </div>
         <div className="text-center mb-6">
           <div className="text-5xl mb-2">⚔️</div>
           <h1 className="text-2xl font-extrabold gold-text">
