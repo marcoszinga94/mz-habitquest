@@ -82,7 +82,6 @@ function AppInner({ view }: { view: View }) {
   const pushToast = useCallback((toast: Omit<Toast, 'id'>) => {
     const id = ++toastId;
     setToasts((prev) => [...prev, { ...toast, id }]);
-    window.setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== id)), 4000);
   }, []);
 
   const load = useCallback(async () => {
@@ -288,7 +287,7 @@ function AppInner({ view }: { view: View }) {
               <ChevronDown size={14} />
             </button>
             {langOpen && (
-              <div className="absolute right-0 mt-1 panel p-1 z-50 w-32 animate-in">
+              <div className="absolute right-0 mt-1 panel p-1 z-50 w-32 pop-in">
                 {(['es', 'en'] as const).map((l) => (
                   <button
                     key={l}
@@ -311,7 +310,7 @@ function AppInner({ view }: { view: View }) {
         </div>
       </header>
 
-      <main className="mt-5">
+      <main key={currentView} className="mt-5 view-enter">
         {currentView === 'dashboard' && (
           <DashboardView data={data} onCheckin={handleCheckin} onReminders={askReminders} notifPermission={notifPermission} onNavigate={navigate} pushToast={pushToast} />
         )}
@@ -350,21 +349,40 @@ function AppInner({ view }: { view: View }) {
       {toasts.length > 0 && (
         <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 w-80">
           {toasts.map((toast) => (
-            <div key={toast.id} className="panel toast-glow p-3 flex items-start gap-3">
-              <div className="text-xl">
-                {toast.icon === 'xp' && '✨'}
-                {toast.icon === 'achievement' && '🏆'}
-                {toast.icon === 'level' && '⬆️'}
-                {toast.icon === 'info' && '🔔'}
-              </div>
-              <div className="flex-1">
-                <div className="font-bold text-sm">{toast.title}</div>
-                {toast.body && <div className="text-xs text-slate-400">{toast.body}</div>}
-              </div>
-            </div>
+            <ToastItem key={toast.id} toast={toast} onDone={() => setToasts((prev) => prev.filter((x) => x.id !== toast.id))} />
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function ToastItem({ toast, onDone }: { toast: Toast; onDone: () => void }) {
+  const [closing, setClosing] = useState(false);
+  const onDoneRef = useRef(onDone);
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  }, [onDone]);
+  useEffect(() => {
+    const t1 = window.setTimeout(() => setClosing(true), 3600);
+    const t2 = window.setTimeout(() => onDoneRef.current(), 4000);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, []);
+  return (
+    <div className={`panel toast-glow p-3 flex items-start gap-3 ${closing ? 'toast-out' : 'toast-in'}`}>
+      <div className="text-xl">
+        {toast.icon === 'xp' && '✨'}
+        {toast.icon === 'achievement' && '🏆'}
+        {toast.icon === 'level' && '⬆️'}
+        {toast.icon === 'info' && '🔔'}
+      </div>
+      <div className="flex-1">
+        <div className="font-bold text-sm">{toast.title}</div>
+        {toast.body && <div className="text-xs text-slate-400">{toast.body}</div>}
+      </div>
     </div>
   );
 }
@@ -400,7 +418,7 @@ function NotificationsPopover({
     onClose();
   };
   return (
-    <div className="absolute right-0 mt-2 panel p-3 z-50 w-80 animate-in">
+    <div className="absolute right-0 mt-2 panel p-3 z-50 w-80 pop-in">
       <div className="flex items-center justify-between mb-2">
         <span className="font-bold text-sm">{t('notifications.title')}</span>
         <button className="text-xs text-indigo-300 hover:underline" onClick={onMarkRead}>
@@ -411,12 +429,13 @@ function NotificationsPopover({
         {data.notifications.length === 0 && (
           <div className="text-sm text-slate-400 py-4 text-center">{t('notifications.empty')}</div>
         )}
-        {data.notifications.map((n) => (
+        {data.notifications.map((n, i) => (
           <button
             key={n.id}
             type="button"
             onClick={() => handleClick(n)}
-            className={`rounded-lg p-2 text-sm text-left hover:bg-slate-700/40 transition-colors ${n.read ? 'bg-slate-800/50' : 'bg-indigo-900/40'}`}
+            style={{ animationDelay: `${i * 40}ms` }}
+            className={`notif-item rounded-lg p-2 text-sm text-left hover:bg-slate-700/40 transition-colors ${n.read ? 'bg-slate-800/50' : 'bg-indigo-900/40'}`}
           >
             <div className="font-semibold">
               {n.type === 'achievement' ? '🏆' : n.type === 'reto' ? '⚔️' : '🔔'} {mapTitle(n.title)}

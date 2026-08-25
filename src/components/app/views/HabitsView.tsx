@@ -227,16 +227,22 @@ function DeleteHabitModal({
 }
 
 export function ModalShell({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  const [closing, setClosing] = useState(false);
+  const close = () => {
+    if (closing) return;
+    setClosing(true);
+    window.setTimeout(onClose, 200);
+  };
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center modal-backdrop ${closing ? 'modal-backdrop-out' : ''}`} onClick={close}>
       <div
-        className="panel p-4 w-full max-w-md animate-in rounded-b-none sm:rounded-lg sm:mb-0 safe-bottom max-h-[92dvh] sm:max-h-[80vh] flex flex-col"
+        className={`panel p-4 w-full max-w-md rounded-b-none sm:rounded-lg sm:mb-0 safe-bottom max-h-[92dvh] sm:max-h-[80vh] flex flex-col modal-in ${closing ? 'modal-out' : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-slate-600 sm:hidden" />
         <div className="flex items-center justify-between mb-3 shrink-0">
           <h3 className="font-bold text-lg">{title}</h3>
-          <button className="btn btn-ghost p-1.5" onClick={onClose} aria-label="close">
+          <button className="btn btn-ghost p-1.5" onClick={close} aria-label="close">
             <X size={16} />
           </button>
         </div>
