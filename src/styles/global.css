@@ -24,6 +24,16 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Transiciones de vista de Astro (ClientRouter): fade in/out suave */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: 0.18s ease-in both fadeOut;
+  }
+  ::view-transition-new(root) {
+    animation: 0.22s ease-out both fadeIn;
+  }
+}
+
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
