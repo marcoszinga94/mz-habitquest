@@ -152,6 +152,19 @@ function AppInner({ view }: { view: View }) {
     setData((d) => (d ? { ...d, notifications: d.notifications.map((n) => ({ ...n, read: true })) } : d));
   };
 
+  const clearNotifications = async () => {
+    await api('/api/notifications', { method: 'DELETE' });
+    setData((d) =>
+      d
+        ? {
+            ...d,
+            notifications: [],
+            stats: { ...d.stats, unreadNotifications: 0 },
+          }
+        : d,
+    );
+  };
+
   const handleCheckin = useCallback(
     async (habit: HabitData) => {
       try {
@@ -266,7 +279,7 @@ function AppInner({ view }: { view: View }) {
                 </span>
               )}
             </button>
-            {notifOpen && <NotificationsPopover data={data} onClose={() => setNotifOpen(false)} onMarkRead={markRead} t={t} />}
+            {notifOpen && <NotificationsPopover data={data} onClose={() => setNotifOpen(false)} onMarkRead={markRead} onClearAll={clearNotifications} onNavigate={navigate} t={t} />}
           </div>
 
           <div className="relative">
@@ -360,17 +373,31 @@ function NotificationsPopover({
   data,
   onClose,
   onMarkRead,
+  onClearAll,
+  onNavigate,
   t,
 }: {
   data: DashboardData;
   onClose: () => void;
   onMarkRead: () => void;
+  onClearAll: () => void;
+  onNavigate: (view: View) => void;
   t: (key: string, vars?: Record<string, string | number>) => string;
 }) {
   const mapTitle = (title: string) => {
     if (title.startsWith('reto.') || title.startsWith('friends.')) return t(`notif.${title}`, {});
     if (title.startsWith('ach.')) return t(title);
     return title;
+  };
+  const viewFor = (n: (typeof data.notifications)[number]): View => {
+    if (n.type === 'achievement') return 'achievements';
+    if (n.type === 'reto') return 'retos';
+    if (n.title.startsWith('friends.')) return 'friends';
+    return 'dashboard';
+  };
+  const handleClick = (n: (typeof data.notifications)[number]) => {
+    onNavigate(viewFor(n));
+    onClose();
   };
   return (
     <div className="absolute right-0 mt-2 panel p-3 z-50 w-80 animate-in">
@@ -385,14 +412,24 @@ function NotificationsPopover({
           <div className="text-sm text-slate-400 py-4 text-center">{t('notifications.empty')}</div>
         )}
         {data.notifications.map((n) => (
-          <div key={n.id} className={`rounded-lg p-2 text-sm ${n.read ? 'bg-slate-800/50' : 'bg-indigo-900/40'}`}>
+          <button
+            key={n.id}
+            type="button"
+            onClick={() => handleClick(n)}
+            className={`rounded-lg p-2 text-sm text-left hover:bg-slate-700/40 transition-colors ${n.read ? 'bg-slate-800/50' : 'bg-indigo-900/40'}`}
+          >
             <div className="font-semibold">
               {n.type === 'achievement' ? '🏆' : n.type === 'reto' ? '⚔️' : '🔔'} {mapTitle(n.title)}
             </div>
             {n.body && <div className="text-xs text-slate-400">{n.body}</div>}
-          </div>
+          </button>
         ))}
       </div>
+      {data.notifications.length > 0 && (
+        <button className="text-xs text-red-400 hover:underline mt-2" onClick={onClearAll}>
+          {t('notifications.deleteAll')}
+        </button>
+      )}
     </div>
   );
 }

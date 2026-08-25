@@ -15,3 +15,10 @@ export const GET: APIRoute = async ({ request }) => {
     .limit(50);
   return json({ notifications: rows });
 };
+
+export const DELETE: APIRoute = async ({ request }) => {
+  const user = await requireUser(request);
+  const db = getDb();
+  await db.delete(notifications).where(eq(notifications.userId, user.id));
+  return json({ ok: true });
+};
