@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Copy, Plus, Swords, Users, Check, Flag, LogIn, Trash2, Pencil, Trophy } from 'lucide-react';
-import { api, type DashboardData, type RetoData, type RetoParticipantData } from '../lib/api';
+import { Copy, Plus, Swords, Users, Check, Flag, LogIn, Trash2, Pencil, Trophy, UserPlus } from 'lucide-react';
+import { api, type DashboardData, type FriendData, type RetoData, type RetoParticipantData } from '../lib/api';
 import { useI18n } from '../lib/i18n';
 import { ModalShell } from './HabitsView';
 import { EmojiPicker } from '../EmojiPicker';
@@ -23,6 +23,7 @@ export function RetosView({
   const [joinOpen, setJoinOpen] = useState(false);
   const [editReto, setEditReto] = useState<RetoData | null>(null);
   const [rankReto, setRankReto] = useState<RetoData | null>(null);
+  const [inviteReto, setInviteReto] = useState<RetoData | null>(null);
 
   const active = data.retos.filter((r) => r.status === 'active');
   const finished = data.retos.filter((r) => r.status === 'finished');
@@ -58,7 +59,7 @@ export function RetosView({
       {active.length > 0 && (
         <div className="flex flex-col gap-3">
           {active.map((r) => (
-            <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} onRanking={setRankReto} />
+            <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} onRanking={setRankReto} onInvite={setInviteReto} />
           ))}
         </div>
       )}
@@ -68,7 +69,7 @@ export function RetosView({
           <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wide mt-2">{t('retos.finished')}</h3>
           <div className="flex flex-col gap-3">
             {finished.map((r) => (
-              <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} onRanking={setRankReto} />
+              <RetoCard key={r.id} reto={r} me={data.user.id} onUpdated={onUpdated} onToast={pushToast} onEdit={setEditReto} onRanking={setRankReto} onInvite={setInviteReto} />
             ))}
           </div>
         </>
@@ -84,6 +85,16 @@ export function RetosView({
           onClose={() => setRankReto(null)}
         />
       )}
+      {inviteReto && (
+        <InviteFriendsModal
+          reto={inviteReto}
+          onClose={() => setInviteReto(null)}
+          onInvited={() => {
+            setInviteReto(null);
+            onUpdated();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -95,6 +106,7 @@ function RetoCard({
   onToast,
   onEdit,
   onRanking,
+  onInvite,
 }: {
   reto: RetoData;
   me: string;
@@ -102,6 +114,7 @@ function RetoCard({
   onToast: (t: { title: string; body?: string }) => void;
   onEdit: (r: RetoData) => void;
   onRanking: (r: RetoData) => void;
+  onInvite: (r: RetoData) => void;
 }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -193,8 +206,11 @@ function RetoCard({
         <div className="flex items-center gap-2 bg-slate-900/60 rounded-lg p-2">
           <span className="text-xs text-slate-400">{t('retos.invite')}</span>
           <span className="font-mono font-bold text-sm bg-indigo-900/50 px-2 py-0.5 rounded">{reto.code}</span>
-          <button className="btn btn-ghost p-1.5 ml-auto" onClick={copyCode} aria-label={t('retos.copy')}>
+          <button className="btn btn-ghost p-1.5" onClick={copyCode} aria-label={t('retos.copy')}>
             {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+          </button>
+          <button className="btn btn-ghost p-1.5 ml-auto" onClick={() => onInvite(reto)} aria-label={t('retos.inviteFriends')}>
+            <UserPlus size={14} className="text-indigo-300" />
           </button>
         </div>
       )}
@@ -370,6 +386,86 @@ function JoinRetoModal({
         {error && <div className="text-sm text-red-400">{error}</div>}
         <button className="btn btn-primary py-2" onClick={join}>
           {t('retos.join')}
+        </button>
+      </div>
+    </ModalShell>
+  );
+}
+
+function InviteFriendsModal({
+  reto,
+  onClose,
+  onInvited,
+}: {
+  reto: RetoData;
+  onClose: () => void;
+  onInvited: () => void;
+}) {
+  const { t } = useI18n();
+  const [friends, setFriends] = useState<FriendData[]>([]);
+  const [participantIds, setParticipantIds] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    api<{ friends: FriendData[] }>('/api/friends').then((d) => setFriends(d.friends)).catch(() => {});
+    api<{ participants: RetoParticipantData[] }>(`/api/retos/${reto.id}`)
+      .then((d) => setParticipantIds(new Set(d.participants.map((p) => p.userId))))
+      .catch(() => {});
+  }, [reto.id]);
+
+  const toggle = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const send = async () => {
+    if (selected.size === 0) return;
+    try {
+      await api(`/api/retos/${reto.id}/invite`, {
+        method: 'POST',
+        body: JSON.stringify({ userIds: [...selected] }),
+      });
+      onInvited();
+    } catch {
+      setError(t('common.error'));
+    }
+  };
+
+  const inviteable = friends.filter((f) => !participantIds.has(f.id));
+
+  return (
+    <ModalShell title={t('retos.inviteModalTitle')} onClose={onClose}>
+      <div className="flex flex-col gap-3">
+        <p className="text-sm text-slate-400">{t('retos.inviteHint')}</p>
+        <div className="flex flex-col gap-2 max-h-80 overflow-y-auto">
+          {friends.length === 0 && <div className="text-sm text-slate-400 text-center py-6">{t('retos.noFriends')}</div>}
+          {inviteable.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => toggle(f.id)}
+              className={`flex items-center gap-2 rounded-lg p-2 text-sm ${selected.has(f.id) ? 'bg-indigo-900/40 border border-indigo-500/40' : 'bg-slate-900/50 border border-transparent'}`}
+            >
+              <div className="w-8 h-8 rounded-full bg-indigo-950 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                {f.avatarPhoto ? (
+                  <img src={f.avatarPhoto} alt={f.username} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-sm">{f.avatarEmoji}</span>
+                )}
+              </div>
+              <span className="flex-1 font-semibold truncate">{f.username}</span>
+              {selected.has(f.id) && <Check size={16} className="text-emerald-400" />}
+            </button>
+          ))}
+        </div>
+        {error && <div className="text-sm text-red-400">{error}</div>}
+        <button className="btn btn-primary py-2" onClick={send} disabled={selected.size === 0}>
+          {t('retos.inviteSend')}
         </button>
       </div>
     </ModalShell>
