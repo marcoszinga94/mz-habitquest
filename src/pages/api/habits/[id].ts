@@ -64,7 +64,7 @@ export const DELETE: APIRoute = async ({ request, params }) => {
   const xpLost = xpFromCheckinDays(days.map((c) => c.day));
 
   await db.batch([
-    db.update(habits).set({ archived: true }).where(eq(habits.id, habit.id)),
+    db.delete(habits).where(eq(habits.id, habit.id)),
     db
       .update(users)
       .set({ xp: Math.max(0, user.xp - xpLost) })
