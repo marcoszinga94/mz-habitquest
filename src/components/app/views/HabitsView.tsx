@@ -116,7 +116,9 @@ function HabitFormModal({
     parseScheduleDays(editing?.scheduleDays),
   );
   const [reminder, setReminder] = useState(editing?.reminderEnabled ?? false);
-  const [reminderTime, setReminderTime] = useState(editing?.reminderTime ?? '09:00');
+  const now = new Date();
+  const defaultTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const [reminderTime, setReminderTime] = useState(editing?.reminderTime ?? defaultTime);
   const [error, setError] = useState('');
 
   const toggleDay = (d: number) => {

@@ -2,9 +2,9 @@ import type { APIRoute } from 'astro';
 import { and, eq } from 'drizzle-orm';
 import { getDb } from '../../../../db';
 import { habits } from '../../../../db/schema';
-import { apiError, json, requireUser } from '../../../../lib/http';
+import { apiError, json, requireUser, todayKey, clientTimeZone } from '../../../../lib/http';
 import { applyCheckin, CheckinError } from '../../../../lib/engine';
-import { isScheduledOn, toDateKey } from '../../../../lib/game';
+import { isScheduledOn } from '../../../../lib/game';
 
 export const POST: APIRoute = async ({ request, params }) => {
   const user = await requireUser(request);
@@ -16,8 +16,9 @@ export const POST: APIRoute = async ({ request, params }) => {
   if (existing.length === 0) return apiError(404, 'not_found');
   const habit = existing[0];
 
-  const today = toDateKey(new Date());
-  if (!isScheduledOn(habit.scheduleDays, new Date())) {
+  const today = todayKey(request);
+  const tz = clientTimeZone(request) ?? undefined;
+  if (!isScheduledOn(habit.scheduleDays, new Date(), tz)) {
     return apiError(422, 'not_scheduled');
   }
   try {

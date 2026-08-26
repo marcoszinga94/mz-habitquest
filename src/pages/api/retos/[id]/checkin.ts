@@ -3,14 +3,13 @@ import { and, eq } from 'drizzle-orm';
 import { getDb } from '../../../../db';
 import { retoParticipants, retos } from '../../../../db/schema';
 import type { Reto } from '../../../../db/schema';
-import { apiError, json, requireUser } from '../../../../lib/http';
+import { apiError, json, requireUser, todayKey } from '../../../../lib/http';
 import {
   checkinReto,
   computeRetoProgress,
   refreshRetoProgress,
   retoCheckedToday,
 } from '../../../../lib/retos';
-import { toDateKey } from '../../../../lib/game';
 
 async function loadReto(
   db: ReturnType<typeof getDb>,
@@ -36,7 +35,7 @@ export const POST: APIRoute = async ({ request, params }) => {
   const reto = ctx.reto;
   if (reto.status !== 'active') return apiError(409, 'reto_finished');
 
-  const today = toDateKey(new Date());
+  const today = todayKey(request);
   if (await retoCheckedToday(db, reto.id, user.id, today)) {
     return apiError(409, 'already_checked');
   }

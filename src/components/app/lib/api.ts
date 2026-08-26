@@ -5,9 +5,10 @@ export class ApiError extends Error {
 }
 
 export async function api<T>(path: string, options?: RequestInit): Promise<T> {
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const res = await fetch(path, {
     credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-Timezone': timeZone },
     ...options,
   });
   const text = await res.text();

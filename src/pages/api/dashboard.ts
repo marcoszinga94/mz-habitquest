@@ -2,8 +2,8 @@ import type { APIRoute } from 'astro';
 import { and, desc, eq } from 'drizzle-orm';
 import { getDb } from '../../db';
 import { achievements, checkins, habits, notifications, retoCheckins, retoParticipants, retos } from '../../db/schema';
-import { json, requireUser } from '../../lib/http';
-import { ACHIEVEMENTS, levelProgress, toDateKey, xpFromCheckinDays } from '../../lib/game';
+import { json, requireUser, todayKey } from '../../lib/http';
+import { ACHIEVEMENTS, levelProgress, xpFromCheckinDays } from '../../lib/game';
 import { computeHabitStats } from '../../lib/engine';
 import { finishExpiredRetosForUser } from '../../lib/retos';
 
@@ -13,7 +13,7 @@ export const GET: APIRoute = async ({ request }) => {
 
   await finishExpiredRetosForUser(db, user.id);
 
-  const today = toDateKey(new Date());
+  const today = todayKey(request);
 
   const [habitRows, checkinRows, achRows, notifRows, retoRows, participantRows, retoCheckinRows] = await Promise.all([
     db.select().from(habits).where(and(eq(habits.userId, user.id), eq(habits.archived, false))),

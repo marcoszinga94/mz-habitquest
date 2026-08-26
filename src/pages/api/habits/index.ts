@@ -3,8 +3,8 @@ import { and, eq, gte } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb } from '../../../db';
 import { checkins, habits } from '../../../db/schema';
-import { apiError, json, requireUser } from '../../../lib/http';
-import { addDays, toDateKey, ALL_DAYS, parseScheduleDays, scheduleToFrequency } from '../../../lib/game';
+import { apiError, json, requireUser, todayKey } from '../../../lib/http';
+import { addDays, ALL_DAYS, parseScheduleDays, scheduleToFrequency } from '../../../lib/game';
 import { computeHabitStats } from '../../../lib/engine';
 
 const createSchema = z.object({
@@ -20,7 +20,7 @@ const createSchema = z.object({
 export const GET: APIRoute = async ({ request }) => {
   const user = await requireUser(request);
   const db = getDb();
-  const today = toDateKey(new Date());
+  const today = todayKey(request);
   const since = addDays(today, -45);
 
   const habitRows = await db
