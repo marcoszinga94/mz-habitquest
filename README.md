@@ -1,79 +1,119 @@
-# HabitQuest ⚔️
+# HabitQuest
 
-Convierte tus hábitos en una aventura RPG. Sube de nivel con XP, mantén rachas, desbloquea logros y reta a tus amigos con **retos de metas** y apuestas simbólicas con impacto real.
+> Convierte hábitos diarios en una aventura RPG con XP, rachas, logros y retos entre amigos.
+
+![Astro](https://img.shields.io/badge/Astro-FF5D01?logo=astro&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
+![Neon](https://img.shields.io/badge/Neon-00E599?logo=postgresql&logoColor=black)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)
+
+## Características
+
+- **Cuentas:** registro e inicio de sesión con email y contraseña; hash con bcrypt y sesión JWT en cookie.
+- **Hábitos:** CRUD con emoji, frecuencia diaria o semanal, días de agenda, meta semanal, recordatorio por hora y archivo.
+- **Check-ins y gamificación:** XP base más bonus por racha, niveles con curva, racha actual y mejor racha.
+- **Logros:** 8 logros con condiciones y recompensa de XP (primera meta, rachas de 7 y 30 días, niveles, volumen de check-ins y retos).
+- **Retos:** creación con código, meta por racha o por completados, plazo y apuesta simbólica; unirse por código, progreso por check-ins y resolución al vencer con ganador.
+- **Apuestas:** el ganador marca el premio como cumplido y el otro participante lo confirma.
+- **Amigos:** solicitudes por email, aceptar o rechazar, y notificaciones asociadas.
+- **Notificaciones:** bandeja in-app y Web Push (retos, amigos y logros).
+- **Recordatorios:** endpoint `/api/cron/reminders` protegido por `CRON_SECRET` o por la cabecera de Vercel Cron.
+- **Interfaz:** tablero, hábitos, retos, amigos, logros y perfil, con soporte español/inglés.
+- **PWA:** manifest y service worker para instalar la app en el teléfono.
 
 ## Stack
 
-- **Astro 7** (SSR) + **React islands** (UI del juego)
-- **Tailwind CSS v4**
-- **Drizzle ORM** + **Neon** (Postgres serverless)
-- **Despliegue**: Vercel (`@astrojs/vercel`)
+| Capa | Tecnología |
+| --- | --- |
+| Framework | Astro 7 en modo SSR con adapter de Vercel |
+| UI | React 19 como islas |
+| Estilos | Tailwind CSS 4 y `lucide-react` |
+| Base de datos | Neon (Postgres serverless) con Drizzle ORM |
+| Autenticación | `jose` para JWT y `bcryptjs` para contraseñas |
+| Notificaciones | Web Push con `web-push` |
+| Validación | Zod |
+| Tests | Vitest sobre el motor puro de gamificación |
+| Deploy | Vercel |
 
-## Funcionalidades
+## Estructura del proyecto
 
-- **Hábitos**: CRUD con emoji, frecuencia (diaria/semanal), dificultad y recordatorio por hora.
-- **Check-ins**: registro diario, rachas, vidas y cálculo de XP.
-- **Gamificación RPG**: niveles con curva de XP, vidas, logros desbloqueables.
-- **Retos con amigos**: crea un reto con meta + plazo + **apuesta real** ("el perdedor invita el café"), comparte el código, y al vencer se declara ganador. El ganador marca la apuesta como cumplida y el perdedor la confirma.
-- **Notificaciones**: recordatorios por hábito (Web Notifications) y notificaciones in-app de logros y retos.
-- **Web Push**: notificaciones push en el teléfono (retos ganados/perdidos, solicitudes de amistad) y recordatorios de hábitos mediante cron.
-- **i18n**: interfaz en español e inglés.
+```text
+src/
+  pages/
+    api/            auth, hábitos, retos, amigos, notificaciones y cron
+    app/            tablero, hábitos, retos, amigos, logros y perfil
+    index/login/register
+  components/app/   UI React del juego y sus vistas
+  db/               schema Drizzle y cliente Neon
+  lib/
+    game.ts         motor puro: XP, niveles, rachas, logros, retos
+    engine.ts       lógica de hábitos sobre la base
+    retos.ts        progreso y cierre de retos
+    auth.ts         sesiones y hashing
+    push.ts         envío de notificaciones push
+    i18n.ts         diccionarios ES/EN
+  middleware.ts     protege /app
+drizzle/            migraciones SQL
+tests/              suite de Vitest
+```
 
 ## Puesta en marcha
 
-1. Instala dependencias: `npm install`
-2. Copia `.env.example` a `.env` y completa:
-   - `DATABASE_URL` — cadena de Neon.
-   - `AUTH_SECRET` — genera una con `openssl rand -base64 32`.
-3. Aplica las migraciones: `npm run db:migrate`
-4. Arranca el dev server: `npm run dev`
+### Requisitos
+
+- Node.js 22.12 o superior (definido en `engines`).
+- Una base de datos Neon y, para push, un par de claves VAPID.
+
+### Instalación
+
+```bash
+npm install
+cp .env.example .env
+npm run db:migrate
+npm run dev
+```
+
+### Variables de entorno
+
+| Variable | Uso | Obligatoria |
+| --- | --- | --- |
+| `DATABASE_URL` | Cadena de conexión a Neon | Sí |
+| `AUTH_SECRET` | Firma de las sesiones JWT | Sí |
+| `PUBLIC_VAPID_PUBLIC_KEY` | Clave pública de Web Push | Para push |
+| `VAPID_PRIVATE_KEY` | Clave privada de Web Push | Para push |
+| `VAPID_SUBJECT` | Contacto del emisor VAPID | Para push |
+| `CRON_SECRET` | Autoriza el cron de recordatorios | Para recordatorios |
 
 ## Scripts
 
 | Comando | Descripción |
 | --- | --- |
-| `npm run dev` | Dev server (SSR) |
-| `npm run build` | Build SSR para Vercel |
+| `npm run dev` | Servidor de desarrollo SSR |
+| `npm run build` | Build de producción con adapter de Vercel |
+| `npm run preview` | Sirve el build generado |
+| `npm run astro` | Acceso directo al CLI de Astro |
 | `npm run db:generate` | Genera migraciones desde el schema |
-| `npm run db:migrate` | Aplica migraciones a Neon |
-| `npm test` | Tests del motor de gamificación |
-| `npx tsc --noEmit` | Chequeo de tipos |
+| `npm run db:migrate` | Aplica las migraciones pendientes |
+| `npm run db:studio` | Abre Drizzle Studio |
+| `npm run test` | Tests del motor de gamificación |
 
-## Despliegue en Vercel
+## Despliegue
 
-1. Sube el repo a GitHub.
-2. Importa el proyecto en Vercel (framework: Astro, detecta el adapter automáticamente).
-3. Define `DATABASE_URL` y `AUTH_SECRET` en Project Settings → Environment Variables.
-4. Para **notificaciones push** define también:
-   - `PUBLIC_VAPID_PUBLIC_KEY` y `VAPID_PRIVATE_KEY` (generadas con `npx web-push generate-vapid-keys --json`)
-   - `CRON_SECRET` (protege el cron de recordatorios)
-5. `npm run db:migrate` contra la base de producción (puedes correrlo localmente apuntando a la misma `DATABASE_URL`).
+Se despliega en Vercel con el adapter de Astro. Hay que definir las variables de entorno
+del proyecto, aplicar migraciones contra la base de producción y programar un cron que
+llame a `/api/cron/reminders`. Para recibir push con la app cerrada, el service worker y
+las claves VAPID deben estar configurados.
 
-## Notificaciones en el teléfono
+## Estado del proyecto
 
-- Los recordatorios mientras la app está abierta usan Web Notifications.
-- Para recibir notificaciones **con la app cerrada** se usa Web Push (VAPID + service worker).
-- **Android**: funciona en el navegador; activa "Recordatorios" en el tablero.
-- **iPhone**: es necesario **instalar la app** (Compartir → Añadir a pantalla de inicio) para que Safari permita push (requisito de iOS 16.4+).
-- Los eventos de retos y amigos se notifican al instante. Los recordatorios de hábitos se envían vía el endpoint `/api/cron/reminders` (protegido con `CRON_SECRET`); su frecuencia depende del plan de Vercel (los cron frecuentes requieren plan Pro).
+Aplicación completa en desarrollo activo: cubre autenticación, hábitos, gamificación,
+retos, amigos y notificaciones. Los tests se concentran en el motor puro de gamificación.
 
-## Estructura
+## Licencia
 
-```
-src/
-  pages/api/     # API (auth, hábitos, retos, notificaciones)
-  pages/*.astro  # landing, login, register, app
-  components/
-    app/         # UI React del juego (islas)
-    AuthPage.tsx # formularios de login/registro
-  db/            # schema Drizzle + cliente Neon
-  lib/
-    game.ts      # motor puro de gamificación (XP, rachas, retos)
-    engine.ts    # lógica de hábitos sobre la DB
-    retos.ts     # lógica de retos
-    auth.ts      # sesiones JWT + hashing
-    i18n.ts      # diccionarios ES/EN
-  middleware.ts  # protección de rutas
-tests/           # tests de Vitest
-drizzle/         # migraciones SQL
-```
+Sin licencia definida.
+
+## Autor
+
+Marcos Zingaretti — https://github.com/marcoszinga94
